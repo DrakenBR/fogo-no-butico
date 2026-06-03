@@ -2,6 +2,7 @@ import { AppShell } from "@/components/AppShell";
 import { Fogueira } from "@/components/Fogueira";
 import { PostCard } from "@/components/PostCard";
 import { RankingPanel } from "@/components/RankingPanel";
+import { NewPostsBanner } from "@/components/NewPostsBanner";
 import { getActiveStoryGroups, getFeed } from "@/lib/feed";
 import { createClient } from "@/lib/supabase/server";
 import { Flame } from "lucide-react";
@@ -19,6 +20,7 @@ export default async function HomePage() {
   return (
     <AppShell right={<RankingPanel rows={rankingData.rows} myPosition={rankingData.myPosition} />}>
       <Fogueira groups={groups} meId={meId} />
+      <NewPostsBanner excludeUserId={meId} />
 
       {posts.length === 0 ? (
         <EmptyFeed />

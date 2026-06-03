@@ -53,8 +53,80 @@ export function CommentsModal({
       setLoading(false);
     })();
 
+    // realtime: novos comentários, fires de comentário e remoções
+    const channel = supabase
+      .channel(`realtime:comments:${postId}`)
+      .on(
+        "postgres_changes",
+        { event: "INSERT", schema: "public", table: "comments", filter: `post_id=eq.${postId}` },
+        async (payload) => {
+          const id = (payload.new as { id?: string }).id;
+          if (!id) return;
+          // dedupe: se já temos esse comentário (optimistic), ignora
+          let alreadyHere = false;
+          setComments((prev) => {
+            alreadyHere = prev.some((c) => c.id === id);
+            return prev;
+          });
+          if (alreadyHere) return;
+          // refetch só o comentário novo com joins
+          const { data: full } = await supabase
+            .from("comments")
+            .select("id, body, created_at, user_id, profiles!inner(username, display_name, avatar_url), comment_reactions(user_id)")
+            .eq("id", id)
+            .maybeSingle();
+          if (full) setComments((prev) => (prev.some((c) => c.id === id) ? prev : [...prev, full as unknown as CommentRow]));
+        }
+      )
+      .on(
+        "postgres_changes",
+        { event: "DELETE", schema: "public", table: "comments", filter: `post_id=eq.${postId}` },
+        (payload) => {
+          const id = (payload.old as { id?: string }).id;
+          if (!id) return;
+          setComments((prev) => prev.filter((c) => c.id !== id));
+        }
+      )
+      .on(
+        "postgres_changes",
+        { event: "INSERT", schema: "public", table: "comment_reactions" },
+        (payload) => {
+          const row = payload.new as { comment_id?: string; user_id?: string };
+          if (!row.comment_id) return;
+          setComments((prev) =>
+            prev.map((c) =>
+              c.id === row.comment_id
+                ? {
+                    ...c,
+                    comment_reactions: c.comment_reactions.some((r) => r.user_id === row.user_id)
+                      ? c.comment_reactions
+                      : [...c.comment_reactions, { user_id: row.user_id! }]
+                  }
+                : c
+            )
+          );
+        }
+      )
+      .on(
+        "postgres_changes",
+        { event: "DELETE", schema: "public", table: "comment_reactions" },
+        (payload) => {
+          const row = payload.old as { comment_id?: string; user_id?: string };
+          if (!row.comment_id) return;
+          setComments((prev) =>
+            prev.map((c) =>
+              c.id === row.comment_id
+                ? { ...c, comment_reactions: c.comment_reactions.filter((r) => r.user_id !== row.user_id) }
+                : c
+            )
+          );
+        }
+      )
+      .subscribe();
+
     return () => {
       canceled = true;
+      supabase.removeChannel(channel);
     };
   }, [postId]);
 
