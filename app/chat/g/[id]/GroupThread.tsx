@@ -6,6 +6,7 @@ import { ArrowLeft, Send, Users } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { Avatar } from "@/components/Avatar";
 import { timeAgo } from "@/lib/utils";
+import { GroupSettingsDialog } from "./GroupSettingsDialog";
 import type { GroupMessage } from "@/types/database";
 
 interface Member {
@@ -35,6 +36,7 @@ export function GroupThread({
 }) {
   const [messages, setMessages] = useState<GroupMessage[]>(initialMessages);
   const [body, setBody] = useState("");
+  const [settingsOpen, setSettingsOpen] = useState(false);
   const [, start] = useTransition();
   const endRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -144,34 +146,49 @@ export function GroupThread({
           <ArrowLeft size={20} />
         </Link>
 
-        <div
-          style={{
-            width: 36,
-            height: 36,
-            borderRadius: "50%",
-            background: groupAvatar
-              ? `center/cover no-repeat url(${groupAvatar})`
-              : "linear-gradient(135deg, #7A1FFF 0%, #FF1B6B 100%)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            color: "#fff",
-            flexShrink: 0
-          }}
+        <button
+          onClick={() => setSettingsOpen(true)}
+          style={{ display: "flex", alignItems: "center", gap: 10, flex: 1, minWidth: 0, background: "transparent", border: "none", color: "inherit", cursor: "pointer", padding: 0, textAlign: "left" }}
         >
-          {!groupAvatar && <Users size={18} />}
-        </div>
-
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ fontWeight: 700, fontSize: 14, display: "flex", alignItems: "center", gap: 6 }}>
-            {groupName}
-            <span style={{ fontSize: 10, color: "#C49BFF", border: "1px solid #C49BFF55", padding: "1px 5px", borderRadius: 999, fontWeight: 700 }}>
-              GRUPO
-            </span>
+          <div
+            style={{
+              width: 36,
+              height: 36,
+              borderRadius: "50%",
+              background: groupAvatar
+                ? `center/cover no-repeat url(${groupAvatar})`
+                : "linear-gradient(135deg, #7A1FFF 0%, #FF1B6B 100%)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              color: "#fff",
+              flexShrink: 0
+            }}
+          >
+            {!groupAvatar && <Users size={18} />}
           </div>
-          <div style={{ color: "var(--text-muted)", fontSize: 12 }}>{members.length} membros</div>
-        </div>
+
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ fontWeight: 700, fontSize: 14, display: "flex", alignItems: "center", gap: 6 }}>
+              {groupName}
+              <span style={{ fontSize: 10, color: "#C49BFF", border: "1px solid #C49BFF55", padding: "1px 5px", borderRadius: 999, fontWeight: 700 }}>
+                GRUPO
+              </span>
+            </div>
+            <div style={{ color: "var(--text-muted)", fontSize: 12 }}>{members.length} membros · toque pra editar</div>
+          </div>
+        </button>
       </div>
+
+      {settingsOpen && (
+        <GroupSettingsDialog
+          groupId={groupId}
+          groupName={groupName}
+          meId={meId}
+          members={members}
+          onClose={() => setSettingsOpen(false)}
+        />
+      )}
 
       <div
         style={{
