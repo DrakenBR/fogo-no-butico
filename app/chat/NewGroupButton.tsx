@@ -63,24 +63,16 @@ export function NewGroupButton({ meId }: { meId: string }) {
 
     start(async () => {
       const supabase = createClient();
-      const { data: groupData, error: gErr } = await supabase
-        .from("groups")
-        .insert({ name: name.trim().slice(0, 60), created_by: meId })
-        .select("id")
-        .single();
-      if (gErr || !groupData) {
-        setErr(gErr?.message ?? "falha");
-        return;
-      }
-      // Trigger já me adicionou como admin. Agora adiciono os outros.
-      const rows = picked.map((p) => ({ group_id: groupData.id, user_id: p.id, is_admin: false }));
-      const { error: mErr } = await supabase.from("group_members").insert(rows);
-      if (mErr) {
-        setErr(mErr.message);
+      const { data: newId, error: rpcErr } = await supabase.rpc("create_group", {
+        group_name: name.trim().slice(0, 60),
+        member_ids: picked.map((p) => p.id)
+      });
+      if (rpcErr || !newId) {
+        setErr(rpcErr?.message ?? "falha");
         return;
       }
       close();
-      router.push(`/chat/g/${groupData.id}`);
+      router.push(`/chat/g/${newId as string}`);
       router.refresh();
     });
   };
