@@ -97,14 +97,6 @@ export function SidebarUserMenu({ me }: { me: Profile }) {
           >
             <Bookmark size={16} /> Salvos
           </Link>
-          <button
-            onClick={toggleTheme}
-            role="menuitem"
-            style={{ ...item, background: "transparent", border: "none", width: "100%", cursor: "pointer" }}
-          >
-            {theme === "dark" ? <Sun size={16} /> : <Moon size={16} />}
-            Tema {theme === "dark" ? "claro" : "escuro"}
-          </button>
           <div style={{ height: 1, background: "var(--border)", margin: "4px 6px" }} />
           <form action={logout} style={{ margin: 0 }}>
             <button
