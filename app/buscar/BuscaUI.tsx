@@ -1,0 +1,144 @@
+"use client";
+
+import { Search } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import Link from "next/link";
+import { createClient } from "@/lib/supabase/client";
+import { Avatar } from "@/components/Avatar";
+import { lookingStyle } from "@/lib/utils";
+import type { LookingFor, Profile } from "@/types/database";
+
+export function BuscaUI() {
+  const [q, setQ] = useState("");
+  const [filter, setFilter] = useState<LookingFor | "todos">("todos");
+  const [rows, setRows] = useState<Profile[]>([]);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const supabase = createClient();
+    let canceled = false;
+    setLoading(true);
+
+    const handle = setTimeout(async () => {
+      let query = supabase.from("profiles").select("*").limit(40);
+      if (q.trim()) {
+        const term = q.trim().replace(/[%_]/g, "");
+        query = query.or(`username.ilike.%${term}%,display_name.ilike.%${term}%,city.ilike.%${term}%`);
+      }
+      if (filter !== "todos") {
+        query = query.eq("looking_for", filter);
+      }
+      query = query.order("created_at", { ascending: false });
+
+      const { data } = await query;
+      if (!canceled) {
+        setRows((data ?? []) as Profile[]);
+        setLoading(false);
+      }
+    }, 250);
+
+    return () => {
+      canceled = true;
+      clearTimeout(handle);
+    };
+  }, [q, filter]);
+
+  const filters = useMemo(
+    () => [
+      { id: "todos" as const, label: "todos" },
+      { id: "marido" as const, label: "💍 marido" },
+      { id: "amante" as const, label: "💋 amante" },
+      { id: "zoeira" as const, label: "🍻 zoeira" }
+    ],
+    []
+  );
+
+  return (
+    <div style={{ padding: 22 }}>
+      <h1 className="display" style={{ fontSize: 28, marginBottom: 16 }}>
+        ACHA UM <span style={{ color: "#FF1B6B" }}>BUTICO</span>
+      </h1>
+
+      <div style={{ position: "relative", marginBottom: 14 }}>
+        <Search size={18} color="#9A9AA0" style={{ position: "absolute", top: 14, left: 14 }} />
+        <input
+          value={q}
+          onChange={(e) => setQ(e.target.value)}
+          placeholder="username, nome ou cidade"
+          style={{
+            width: "100%",
+            background: "#161519",
+            border: "1px solid rgba(255,255,255,0.08)",
+            borderRadius: 14,
+            padding: "13px 14px 13px 42px",
+            color: "#F5F5F7",
+            fontSize: 15,
+            outline: "none"
+          }}
+        />
+      </div>
+
+      <div className="no-scrollbar" style={{ display: "flex", gap: 8, overflowX: "auto", marginBottom: 18, paddingBottom: 4 }}>
+        {filters.map((f) => {
+          const active = filter === f.id;
+          return (
+            <button
+              key={f.id}
+              onClick={() => setFilter(f.id)}
+              style={{
+                padding: "8px 14px",
+                borderRadius: 999,
+                border: active ? "1px solid #FF1B6B" : "1px solid rgba(255,255,255,0.08)",
+                background: active ? "rgba(255,27,107,0.15)" : "#161519",
+                color: active ? "#FF1B6B" : "#F5F5F7",
+                fontSize: 13,
+                fontWeight: 600,
+                cursor: "pointer",
+                whiteSpace: "nowrap"
+              }}
+            >
+              {f.label}
+            </button>
+          );
+        })}
+      </div>
+
+      {loading && <div style={{ color: "#9A9AA0", textAlign: "center", padding: 20 }}>Procurando...</div>}
+      {!loading && rows.length === 0 && (
+        <div style={{ color: "#9A9AA0", textAlign: "center", padding: 40 }}>Ninguém aqui pra esse filtro 🔥</div>
+      )}
+
+      <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+        {rows.map((p) => {
+          const tag = lookingStyle[p.looking_for];
+          return (
+            <Link
+              key={p.id}
+              href={`/perfil/${p.username}`}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 12,
+                padding: "12px 8px",
+                borderRadius: 12,
+                textDecoration: "none",
+                color: "inherit"
+              }}
+            >
+              <Avatar src={p.avatar_url} seed={p.username} initial={p.display_name} size={48} />
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ fontWeight: 700, fontSize: 15 }}>{p.display_name}</div>
+                <div style={{ color: "#9A9AA0", fontSize: 13 }}>
+                  @{p.username} {p.city ? `· ${p.city}` : ""}
+                </div>
+              </div>
+              <span style={{ background: tag.bg, color: tag.color, fontSize: 12, fontWeight: 600, padding: "4px 10px", borderRadius: 999 }}>
+                {tag.label}
+              </span>
+            </Link>
+          );
+        })}
+      </div>
+    </div>
+  );
+}

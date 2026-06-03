@@ -1,0 +1,45 @@
+@import url("https://fonts.googleapis.com/css2?family=Anton&family=Outfit:wght@400;500;600;700&display=swap");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+}
+
+html, body {
+  background: #0D0D0F;
+  color: #F5F5F7;
+  font-family: "Outfit", system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+* { box-sizing: border-box; }
+
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-thumb { background: #2a2830; border-radius: 8px; }
+::-webkit-scrollbar-track { background: transparent; }
+
+input, textarea, button { font-family: inherit; }
+
+.display { font-family: "Anton", system-ui, sans-serif; letter-spacing: 0.5px; }
+
+.fire-bg { background: linear-gradient(135deg, #FF1B6B 0%, #FF6A3D 60%, #FFB13D 100%); }
+.fire-text {
+  background: linear-gradient(135deg, #FF1B6B 0%, #FF6A3D 60%, #FFB13D 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.glow-pink { box-shadow: 0 0 24px rgba(255, 27, 107, 0.45); }
+
+@keyframes pulse-fire { 0%,100% { transform: scale(1); } 50% { transform: scale(1.18); } }
+@keyframes glow-anim { 0%,100% { box-shadow: 0 0 18px rgba(255,27,107,.5); } 50% { box-shadow: 0 0 30px rgba(255,27,107,.85); } }
+.animate-pulse-fire { animation: pulse-fire .4s ease; }
+.animate-glow { animation: glow-anim 2.5s infinite; }
+
+/* esconde scrollbar horizontal nos stories */
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { scrollbar-width: none; }

@@ -1,0 +1,108 @@
+export type LookingFor = "marido" | "amante" | "zoeira";
+export type MediaType = "photo" | "video";
+export type ReactionType = "fire";
+
+export type LinkType = "loja" | "youtube" | "instagram" | "tiktok" | "twitch" | "discord";
+
+export interface ProfileLink {
+  type: LinkType;
+  url: string;
+}
+
+export const LINK_TYPES: { id: LinkType; label: string; color: string }[] = [
+  { id: "loja",      label: "Loja online", color: "#FF1B6B" },
+  { id: "youtube",   label: "YouTube",     color: "#FF0033" },
+  { id: "instagram", label: "Instagram",   color: "#E1306C" },
+  { id: "tiktok",    label: "TikTok",      color: "#25F4EE" },
+  { id: "twitch",    label: "Twitch",      color: "#9146FF" },
+  { id: "discord",   label: "Discord",     color: "#5865F2" }
+];
+
+export interface Profile {
+  id: string;
+  username: string;
+  display_name: string;
+  bio: string | null;
+  age: number | null;
+  city: string | null;
+  looking_for: LookingFor;
+  avatar_url: string | null;
+  verified: boolean;
+  links: ProfileLink[];
+  created_at: string;
+}
+
+export interface Post {
+  id: string;
+  user_id: string;
+  media_url: string;
+  media_type: MediaType;
+  caption: string | null;
+  created_at: string;
+}
+
+export interface Reaction {
+  id: string;
+  post_id: string;
+  user_id: string;
+  type: ReactionType;
+  created_at: string;
+}
+
+export interface Comment {
+  id: string;
+  post_id: string;
+  user_id: string;
+  body: string;
+  created_at: string;
+}
+
+export interface Story {
+  id: string;
+  user_id: string;
+  media_url: string;
+  media_type: MediaType;
+  caption: string | null;
+  created_at: string;
+  expires_at: string;
+}
+
+export interface ActiveStory extends Story {
+  username: string;
+  display_name: string;
+  avatar_url: string | null;
+}
+
+export interface WeeklyRankingRow {
+  user_id: string;
+  username: string;
+  display_name: string;
+  city: string | null;
+  avatar_url: string | null;
+  fires: number;
+  position: number;
+}
+
+export interface FeedPost extends Post {
+  author: Pick<Profile, "id" | "username" | "display_name" | "avatar_url" | "city" | "looking_for">;
+  fires: number;
+  comments_count: number;
+  liked_by_me: boolean;
+}
+
+export interface Database {
+  public: {
+    Tables: {
+      profiles: { Row: Profile; Insert: Partial<Profile> & { id: string; username: string; display_name: string }; Update: Partial<Profile> };
+      posts: { Row: Post; Insert: Omit<Post, "id" | "created_at"> & { id?: string }; Update: Partial<Post> };
+      reactions: { Row: Reaction; Insert: Omit<Reaction, "id" | "created_at" | "type"> & { id?: string; type?: ReactionType }; Update: Partial<Reaction> };
+      comments: { Row: Comment; Insert: Omit<Comment, "id" | "created_at"> & { id?: string }; Update: Partial<Comment> };
+      stories: { Row: Story; Insert: Omit<Story, "id" | "created_at" | "expires_at"> & { id?: string; expires_at?: string }; Update: Partial<Story> };
+    };
+    Views: {
+      weekly_ranking: { Row: WeeklyRankingRow };
+      active_stories: { Row: ActiveStory };
+      post_stats: { Row: { post_id: string; user_id: string; fires: number; comments: number } };
+    };
+  };
+}
