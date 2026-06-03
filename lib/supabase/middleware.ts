@@ -6,10 +6,18 @@ const PUBLIC_ROUTES = ["/login", "/signup", "/auth"];
 export async function updateSession(request: NextRequest) {
   let response = NextResponse.next({ request });
 
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const anon = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+  // Sem envs? Não derruba tudo — só deixa passar (rota pública renderiza, rota privada
+  // vai falhar no server component mostrando uma mensagem amigável)
+  if (!url || !anon) {
+    console.error("[middleware] envs do Supabase ausentes — pulando auth check");
+    return response;
+  }
+
+  try {
+    const supabase = createServerClient(url, anon, {
       cookies: {
         getAll() {
           return request.cookies.getAll();
@@ -22,26 +30,30 @@ export async function updateSession(request: NextRequest) {
           );
         }
       }
+    });
+
+    const { data: { user } } = await supabase.auth.getUser();
+
+    const { pathname } = request.nextUrl;
+    const isPublic = PUBLIC_ROUTES.some((p) => pathname === p || pathname.startsWith(p + "/"));
+
+    if (!user && !isPublic) {
+      const redirectUrl = request.nextUrl.clone();
+      redirectUrl.pathname = "/login";
+      redirectUrl.searchParams.set("next", pathname);
+      return NextResponse.redirect(redirectUrl);
     }
-  );
 
-  const { data: { user } } = await supabase.auth.getUser();
+    if (user && (pathname === "/login" || pathname === "/signup")) {
+      const redirectUrl = request.nextUrl.clone();
+      redirectUrl.pathname = "/";
+      return NextResponse.redirect(redirectUrl);
+    }
 
-  const { pathname } = request.nextUrl;
-  const isPublic = PUBLIC_ROUTES.some((p) => pathname === p || pathname.startsWith(p + "/"));
-
-  if (!user && !isPublic) {
-    const url = request.nextUrl.clone();
-    url.pathname = "/login";
-    url.searchParams.set("next", pathname);
-    return NextResponse.redirect(url);
+    return response;
+  } catch (err) {
+    console.error("[middleware] auth check falhou:", err);
+    // Falha de rede / config inválida — deixa a request seguir em vez de quebrar tudo
+    return response;
   }
-
-  if (user && (pathname === "/login" || pathname === "/signup")) {
-    const url = request.nextUrl.clone();
-    url.pathname = "/";
-    return NextResponse.redirect(url);
-  }
-
-  return response;
 }
