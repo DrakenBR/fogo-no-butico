@@ -118,6 +118,9 @@ export interface CrusherPreview {
   created_at: string;
   initial: string;
   is_match: boolean;
+  /** Só vem populado se for match. Null caso contrário. */
+  username: string | null;
+  display_name: string | null;
 }
 
 export interface HighlightCollection {
