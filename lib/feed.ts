@@ -17,11 +17,7 @@ export async function getFeed(
       id, user_id, media_url, media_type, caption, created_at, original_post_id, poll,
       author:profiles!inner(id, username, display_name, avatar_url, city, looking_for),
       reactions(user_id),
-      comments(count),
-      original:posts!posts_original_post_id_fkey(
-        id, media_url, media_type, caption,
-        author:profiles!posts_user_id_fkey(username, display_name, avatar_url)
-      )
+      comments(count)
     `
     )
     .order("created_at", { ascending: false })
@@ -32,6 +28,23 @@ export async function getFeed(
   const { data: posts, error } = await query;
 
   if (error || !posts) return { posts: [], meId };
+
+  // Fetch dos posts originais (pros reposts) em uma query separada — evita o
+  // problema de self-reference + nested author que confunde o PostgREST
+  const originalIds = posts
+    .map((p: any) => p.original_post_id)
+    .filter((id: string | null): id is string => !!id);
+
+  let originalsMap: Record<string, any> = {};
+  if (originalIds.length > 0) {
+    const { data: originals } = await supabase
+      .from("posts")
+      .select("id, media_url, media_type, caption, author:profiles!inner(username, display_name, avatar_url)")
+      .in("id", originalIds);
+    if (originals) {
+      originalsMap = Object.fromEntries(originals.map((o: any) => [o.id, o]));
+    }
+  }
 
   const result: FeedPost[] = posts.map((p: any) => {
     const reacts: Array<{ user_id: string }> = p.reactions ?? [];
@@ -46,7 +59,7 @@ export async function getFeed(
       original_post_id: p.original_post_id ?? null,
       poll: p.poll ?? null,
       author: p.author,
-      original: p.original ?? null,
+      original: p.original_post_id ? originalsMap[p.original_post_id] ?? null : null,
       fires: reacts.length,
       comments_count: commentsCount,
       liked_by_me: meId ? reacts.some((r) => r.user_id === meId) : false
