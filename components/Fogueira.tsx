@@ -1,22 +1,41 @@
 "use client";
 
 import { PlusCircle } from "lucide-react";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import Link from "next/link";
 import { Avatar } from "./Avatar";
 import { StoryViewer } from "./StoryViewer";
-import type { ActiveStory } from "@/types/database";
+import { createClient } from "@/lib/supabase/client";
+import type { StoryGroup } from "@/types/database";
 
-interface StoryGroup {
-  user_id: string;
-  username: string;
-  display_name: string;
-  avatar_url: string | null;
-  stories: ActiveStory[];
-}
+export function Fogueira({ groups: initialGroups, meId }: { groups: StoryGroup[]; meId: string | null }) {
+  // Set local de stories que o user já viu (semente: o que veio do servidor)
+  const [viewedIds, setViewedIds] = useState<Set<string>>(() => {
+    const s = new Set<string>();
+    initialGroups.forEach((g) => g.stories.forEach((st) => st.viewed_by_me && s.add(st.id)));
+    return s;
+  });
 
-export function Fogueira({ groups, meId }: { groups: StoryGroup[]; meId: string | null }) {
+  const sortedGroups = useMemo(() => {
+    const withFlag = initialGroups.map((g) => ({
+      ...g,
+      hasUnviewed: g.stories.some((s) => !viewedIds.has(s.id))
+    }));
+    return withFlag.sort((a, b) => {
+      if (a.hasUnviewed === b.hasUnviewed) return 0;
+      return a.hasUnviewed ? -1 : 1;
+    });
+  }, [initialGroups, viewedIds]);
+
   const [openIdx, setOpenIdx] = useState<number | null>(null);
+
+  const markViewed = async (storyId: string) => {
+    if (viewedIds.has(storyId)) return;
+    setViewedIds((prev) => new Set(prev).add(storyId));
+    if (!meId) return;
+    const supabase = createClient();
+    await supabase.from("story_views").insert({ story_id: storyId, user_id: meId });
+  };
 
   return (
     <>
@@ -53,7 +72,7 @@ export function Fogueira({ groups, meId }: { groups: StoryGroup[]; meId: string 
           </span>
         </Link>
 
-        {groups.map((g, i) => (
+        {sortedGroups.map((g, i) => (
           <button
             key={g.user_id}
             onClick={() => setOpenIdx(i)}
@@ -66,11 +85,27 @@ export function Fogueira({ groups, meId }: { groups: StoryGroup[]; meId: string 
               alignItems: "center",
               gap: 7,
               flexShrink: 0,
-              padding: 0
+              padding: 0,
+              opacity: g.hasUnviewed ? 1 : 0.7
             }}
           >
-            <Avatar src={g.avatar_url} seed={g.username} initial={g.display_name} size={56} ring />
-            <span style={{ fontSize: 12, color: "#F5F5F7", maxWidth: 64, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+            <Avatar
+              src={g.avatar_url}
+              seed={g.username}
+              initial={g.display_name}
+              size={56}
+              ring={g.hasUnviewed}
+            />
+            <span
+              style={{
+                fontSize: 12,
+                color: g.hasUnviewed ? "#F5F5F7" : "#9A9AA0",
+                maxWidth: 64,
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                whiteSpace: "nowrap"
+              }}
+            >
               {g.display_name.split(" ")[0]}
             </span>
           </button>
@@ -79,8 +114,9 @@ export function Fogueira({ groups, meId }: { groups: StoryGroup[]; meId: string 
 
       {openIdx !== null && (
         <StoryViewer
-          groups={groups}
+          groups={sortedGroups}
           startIdx={openIdx}
+          onView={markViewed}
           onClose={() => setOpenIdx(null)}
         />
       )}

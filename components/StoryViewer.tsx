@@ -4,26 +4,20 @@ import { X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Avatar } from "./Avatar";
 import { timeAgo } from "@/lib/utils";
-import type { ActiveStory } from "@/types/database";
-
-interface StoryGroup {
-  user_id: string;
-  username: string;
-  display_name: string;
-  avatar_url: string | null;
-  stories: ActiveStory[];
-}
+import type { StoryGroup } from "@/types/database";
 
 const STORY_DURATION = 5000;
 
 export function StoryViewer({
   groups,
   startIdx,
-  onClose
+  onClose,
+  onView
 }: {
   groups: StoryGroup[];
   startIdx: number;
   onClose: () => void;
+  onView?: (storyId: string) => void;
 }) {
   const [gi, setGi] = useState(startIdx);
   const [si, setSi] = useState(0);
@@ -34,6 +28,7 @@ export function StoryViewer({
 
   useEffect(() => {
     if (!story) return;
+    onView?.(story.id);
     setProgress(0);
     const startedAt = performance.now();
     let raf: number;

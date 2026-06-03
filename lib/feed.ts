@@ -1,6 +1,6 @@
 import "server-only";
 import { createClient } from "@/lib/supabase/server";
-import type { ActiveStory, FeedPost } from "@/types/database";
+import type { ActiveStory, FeedPost, StoryGroup } from "@/types/database";
 
 export async function getFeed(
   opts: { limit?: number; userId?: string } = {}
@@ -49,7 +49,7 @@ export async function getFeed(
   return { posts: result, meId };
 }
 
-export async function getActiveStoryGroups() {
+export async function getActiveStoryGroups(): Promise<StoryGroup[]> {
   const supabase = createClient();
   const { data, error } = await supabase
     .from("active_stories")
@@ -57,16 +57,7 @@ export async function getActiveStoryGroups() {
     .order("created_at", { ascending: true });
   if (error || !data) return [];
 
-  const map = new Map<
-    string,
-    {
-      user_id: string;
-      username: string;
-      display_name: string;
-      avatar_url: string | null;
-      stories: ActiveStory[];
-    }
-  >();
+  const map = new Map<string, StoryGroup>();
   for (const s of data as ActiveStory[]) {
     const k = s.user_id;
     if (!map.has(k)) {
@@ -75,10 +66,18 @@ export async function getActiveStoryGroups() {
         username: s.username,
         display_name: s.display_name,
         avatar_url: s.avatar_url,
-        stories: []
+        stories: [],
+        hasUnviewed: false
       });
     }
-    map.get(k)!.stories.push(s);
+    const g = map.get(k)!;
+    g.stories.push(s);
+    if (!s.viewed_by_me) g.hasUnviewed = true;
   }
-  return Array.from(map.values());
+
+  // Não vistos primeiro, vistos no final
+  return Array.from(map.values()).sort((a, b) => {
+    if (a.hasUnviewed === b.hasUnviewed) return 0;
+    return a.hasUnviewed ? -1 : 1;
+  });
 }

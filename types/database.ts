@@ -71,6 +71,16 @@ export interface ActiveStory extends Story {
   username: string;
   display_name: string;
   avatar_url: string | null;
+  viewed_by_me: boolean;
+}
+
+export interface StoryGroup {
+  user_id: string;
+  username: string;
+  display_name: string;
+  avatar_url: string | null;
+  stories: ActiveStory[];
+  hasUnviewed: boolean;
 }
 
 export interface WeeklyRankingRow {
