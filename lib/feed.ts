@@ -15,7 +15,7 @@ export async function getFeed(
     .select(
       `
       id, user_id, media_url, media_type, caption, created_at, original_post_id, poll,
-      author:profiles!inner(id, username, display_name, avatar_url, city, looking_for),
+      author:profiles!posts_user_id_fkey(id, username, display_name, avatar_url, city, looking_for),
       reactions(user_id),
       comments(count)
     `
@@ -39,7 +39,7 @@ export async function getFeed(
   if (originalIds.length > 0) {
     const { data: originals } = await supabase
       .from("posts")
-      .select("id, media_url, media_type, caption, author:profiles!inner(username, display_name, avatar_url)")
+      .select("id, media_url, media_type, caption, author:profiles!posts_user_id_fkey(username, display_name, avatar_url)")
       .in("id", originalIds);
     if (originals) {
       originalsMap = Object.fromEntries(originals.map((o: any) => [o.id, o]));

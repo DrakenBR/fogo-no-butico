@@ -32,7 +32,7 @@ export function PostsAdminTable() {
     const supabase = createClient();
     const { data, error } = await supabase
       .from("posts")
-      .select("id, user_id, media_url, media_type, caption, created_at, author:profiles!inner(username, display_name), reactions(count), comments(count)")
+      .select("id, user_id, media_url, media_type, caption, created_at, author:profiles!posts_user_id_fkey(username, display_name), reactions(count), comments(count)")
       .order("created_at", { ascending: false })
       .limit(100);
     if (error) {

@@ -43,7 +43,7 @@ export function CommentsModal({
     (async () => {
       const { data, error } = await supabase
         .from("comments")
-        .select("id, body, created_at, user_id, profiles!inner(username, display_name, avatar_url), comment_reactions(user_id)")
+        .select("id, body, created_at, user_id, profiles:profiles!comments_user_id_fkey(username, display_name, avatar_url), comment_reactions(user_id)")
         .eq("post_id", postId)
         .order("created_at", { ascending: true });
       if (canceled) return;
@@ -72,7 +72,7 @@ export function CommentsModal({
           // refetch só o comentário novo com joins
           const { data: full } = await supabase
             .from("comments")
-            .select("id, body, created_at, user_id, profiles!inner(username, display_name, avatar_url), comment_reactions(user_id)")
+            .select("id, body, created_at, user_id, profiles:profiles!comments_user_id_fkey(username, display_name, avatar_url), comment_reactions(user_id)")
             .eq("id", id)
             .maybeSingle();
           if (full) setComments((prev) => (prev.some((c) => c.id === id) ? prev : [...prev, full as unknown as CommentRow]));
@@ -138,7 +138,7 @@ export function CommentsModal({
     const { data, error } = await supabase
       .from("comments")
       .insert({ post_id: postId, user_id: meId, body: text })
-      .select("id, body, created_at, user_id, profiles!inner(username, display_name, avatar_url), comment_reactions(user_id)")
+      .select("id, body, created_at, user_id, profiles:profiles!comments_user_id_fkey(username, display_name, avatar_url), comment_reactions(user_id)")
       .single();
     setSending(false);
     if (!error && data) {
