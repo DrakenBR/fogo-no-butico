@@ -89,6 +89,40 @@ export interface Comment {
   created_at: string;
 }
 
+export interface CommentReaction {
+  id: string;
+  comment_id: string;
+  user_id: string;
+  type: ReactionType;
+  created_at: string;
+}
+
+export type NotificationKind = "fire_post" | "fire_comment" | "comment" | "mention";
+
+export interface NotificationRow {
+  id: string;
+  kind: NotificationKind;
+  post_id: string | null;
+  comment_id: string | null;
+  read_at: string | null;
+  created_at: string;
+  actor: {
+    id: string;
+    username: string;
+    display_name: string;
+    avatar_url: string | null;
+  } | null;
+  post: {
+    id: string;
+    media_url: string;
+    caption: string | null;
+  } | null;
+  comment: {
+    id: string;
+    body: string;
+  } | null;
+}
+
 export interface Story {
   id: string;
   user_id: string;

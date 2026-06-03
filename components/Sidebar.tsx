@@ -1,6 +1,6 @@
 "use client";
 
-import { Flame, Search, Home, Trophy, User, PlusCircle, ShieldCheck } from "lucide-react";
+import { Flame, Search, Home, Trophy, User, PlusCircle, ShieldCheck, Bell } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { SidebarUserMenu } from "./SidebarUserMenu";
@@ -9,11 +9,12 @@ import type { Profile } from "@/types/database";
 const items = [
   { href: "/", icon: Home, label: "Feed" },
   { href: "/buscar", icon: Search, label: "Buscar" },
+  { href: "/notificacoes", icon: Bell, label: "Notificações", showBadge: true as const },
   { href: "/ranking", icon: Trophy, label: "Ranking" },
   { href: "/perfil", icon: User, label: "Perfil" }
 ];
 
-export function Sidebar({ me }: { me: Profile | null }) {
+export function Sidebar({ me, unreadNotifs = 0 }: { me: Profile | null; unreadNotifs?: number }) {
   const path = usePathname();
   return (
     <aside
@@ -45,6 +46,7 @@ export function Sidebar({ me }: { me: Profile | null }) {
       {items.map((n) => {
         const active = n.href === "/" ? path === "/" : path.startsWith(n.href);
         const Icon = n.icon;
+        const badge = "showBadge" in n && n.showBadge && unreadNotifs > 0;
         return (
           <Link
             key={n.href}
@@ -59,10 +61,38 @@ export function Sidebar({ me }: { me: Profile | null }) {
               color: active ? "#FF1B6B" : "#F5F5F7",
               fontSize: 16,
               fontWeight: 600,
-              textDecoration: "none"
+              textDecoration: "none",
+              position: "relative"
             }}
           >
-            <Icon size={20} fill={active ? "#FF1B6B" : "none"} /> {n.label}
+            <span style={{ position: "relative", display: "inline-flex" }}>
+              <Icon size={20} fill={active ? "#FF1B6B" : "none"} />
+              {badge && (
+                <span
+                  style={{
+                    position: "absolute",
+                    top: -6,
+                    right: -8,
+                    background: "#FF1B6B",
+                    color: "#fff",
+                    fontSize: 10,
+                    fontWeight: 700,
+                    padding: "1px 5px",
+                    borderRadius: 999,
+                    minWidth: 16,
+                    height: 16,
+                    display: "inline-flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    border: "2px solid #0D0D0F",
+                    lineHeight: 1
+                  }}
+                >
+                  {unreadNotifs > 99 ? "99+" : unreadNotifs}
+                </span>
+              )}
+            </span>
+            {n.label}
           </Link>
         );
       })}

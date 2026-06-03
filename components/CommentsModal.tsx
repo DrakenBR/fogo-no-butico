@@ -3,8 +3,11 @@
 import { X, Send } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Avatar } from "./Avatar";
+import { MentionInput } from "./MentionInput";
+import { CommentFireButton } from "./CommentFireButton";
 import { createClient } from "@/lib/supabase/client";
 import { timeAgo } from "@/lib/utils";
+import { renderMentions } from "@/lib/render-mentions";
 
 interface CommentRow {
   id: string;
@@ -16,6 +19,7 @@ interface CommentRow {
     display_name: string;
     avatar_url: string | null;
   } | null;
+  comment_reactions: { user_id: string }[];
 }
 
 export function CommentsModal({
@@ -39,7 +43,7 @@ export function CommentsModal({
     (async () => {
       const { data, error } = await supabase
         .from("comments")
-        .select("id, body, created_at, user_id, profiles!inner(username, display_name, avatar_url)")
+        .select("id, body, created_at, user_id, profiles!inner(username, display_name, avatar_url), comment_reactions(user_id)")
         .eq("post_id", postId)
         .order("created_at", { ascending: true });
       if (canceled) return;
@@ -62,7 +66,7 @@ export function CommentsModal({
     const { data, error } = await supabase
       .from("comments")
       .insert({ post_id: postId, user_id: meId, body: text })
-      .select("id, body, created_at, user_id, profiles!inner(username, display_name, avatar_url)")
+      .select("id, body, created_at, user_id, profiles!inner(username, display_name, avatar_url), comment_reactions(user_id)")
       .single();
     setSending(false);
     if (!error && data) {
@@ -110,30 +114,37 @@ export function CommentsModal({
           {!loading && comments.length === 0 && (
             <div style={{ color: "#9A9AA0", padding: 24, textAlign: "center" }}>Ninguém comentou ainda. Quebra o gelo 🔥</div>
           )}
-          {comments.map((c) => (
-            <div key={c.id} style={{ display: "flex", gap: 10, padding: "10px 0", borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
-              <Avatar src={c.profiles?.avatar_url} seed={c.profiles?.username} initial={c.profiles?.display_name} size={36} />
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ fontSize: 14 }}>
-                  <span style={{ fontWeight: 700, marginRight: 6 }}>{c.profiles?.display_name ?? "anônimo"}</span>
-                  {c.body}
+          {comments.map((c) => {
+            const fires = c.comment_reactions?.length ?? 0;
+            const litByMe = meId ? c.comment_reactions?.some((r) => r.user_id === meId) ?? false : false;
+            return (
+              <div key={c.id} style={{ display: "flex", gap: 10, padding: "10px 0", borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
+                <Avatar src={c.profiles?.avatar_url} seed={c.profiles?.username} initial={c.profiles?.display_name} size={36} />
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ fontSize: 14, lineHeight: 1.4 }}>
+                    <span style={{ fontWeight: 700, marginRight: 6 }}>{c.profiles?.display_name ?? "anônimo"}</span>
+                    {renderMentions(c.body)}
+                  </div>
+                  <div style={{ display: "flex", alignItems: "center", gap: 12, color: "#9A9AA0", fontSize: 11.5, marginTop: 4 }}>
+                    <span>{timeAgo(c.created_at)}</span>
+                    <CommentFireButton commentId={c.id} initialFires={fires} initialLit={litByMe} meId={meId} />
+                  </div>
                 </div>
-                <div style={{ color: "#9A9AA0", fontSize: 11.5, marginTop: 2 }}>{timeAgo(c.created_at)}</div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
 
         {meId ? (
           <div style={{ display: "flex", gap: 8, padding: 14, borderTop: "1px solid rgba(255,255,255,0.08)" }}>
-            <input
+            <MentionInput
               value={body}
-              onChange={(e) => setBody(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && submit()}
-              placeholder="Manda um comentário..."
-              maxLength={500}
+              onChange={setBody}
+              onSubmit={submit}
+              placeholder="Manda um comentário... (use @ pra arrobar)"
+              excludeUserId={meId}
               style={{
-                flex: 1,
+                width: "100%",
                 background: "#1E1C22",
                 border: "1px solid rgba(255,255,255,0.08)",
                 borderRadius: 24,
@@ -152,6 +163,7 @@ export function CommentsModal({
                 borderRadius: "50%",
                 width: 42,
                 height: 42,
+                minWidth: 42,
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",

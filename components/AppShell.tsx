@@ -18,9 +18,12 @@ export async function AppShell({
   const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();
   let me: Profile | null = null;
+  let unreadNotifs = 0;
   if (user) {
     const { data } = await supabase.from("profiles").select("*").eq("id", user.id).maybeSingle();
     me = data ?? null;
+    const { data: countData } = await supabase.rpc("unread_notifications_count");
+    unreadNotifs = typeof countData === "number" ? countData : 0;
   }
 
   // No modo "wide" (admin) o conteúdo central usa quase toda a largura disponível.
@@ -30,7 +33,7 @@ export async function AppShell({
 
   return (
     <div style={{ display: "flex", minHeight: "100vh", width: "100%" }}>
-      <Sidebar me={me} />
+      <Sidebar me={me} unreadNotifs={unreadNotifs} />
 
       <main
         style={{
