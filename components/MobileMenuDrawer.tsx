@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
@@ -20,7 +21,10 @@ interface Props {
 
 export function MobileMenuDrawer({ me, unreadNotifs = 0, unreadMessages = 0, unrevealedCrushers = 0 }: Props) {
   const [open, setOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const path = usePathname();
+
+  useEffect(() => { setMounted(true); }, []);
 
   // fecha drawer ao mudar de rota
   useEffect(() => {
@@ -75,14 +79,14 @@ export function MobileMenuDrawer({ me, unreadNotifs = 0, unreadMessages = 0, unr
         <Menu size={24} />
       </button>
 
-      {open && (
+      {open && mounted && createPortal(
         <div
           onClick={() => setOpen(false)}
           style={{
             position: "fixed",
             inset: 0,
             background: "rgba(0,0,0,0.6)",
-            zIndex: 60,
+            zIndex: 1000,
             display: "flex",
             justifyContent: "flex-start"
           }}
@@ -278,7 +282,8 @@ export function MobileMenuDrawer({ me, unreadNotifs = 0, unreadMessages = 0, unr
 
             <style>{`@keyframes slideIn { from { transform: translateX(-100%); } to { transform: translateX(0); } }`}</style>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </>
   );
