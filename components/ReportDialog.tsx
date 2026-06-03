@@ -74,7 +74,7 @@ export function ReportDialog({
         style={{
           width: "100%",
           maxWidth: 420,
-          background: "#161519",
+          background: "var(--surface)",
           border: "1px solid rgba(255,255,255,0.08)",
           borderRadius: 18,
           padding: 18
@@ -85,15 +85,15 @@ export function ReportDialog({
             <Flag size={18} color="#FF1B6B" />
             <span className="display" style={{ fontSize: 18 }}>DENUNCIAR</span>
           </div>
-          <button onClick={onClose} style={{ background: "none", border: "none", color: "#F5F5F7", cursor: "pointer" }}>
+          <button onClick={onClose} style={{ background: "none", border: "none", color: "var(--text)", cursor: "pointer" }}>
             <X size={20} />
           </button>
         </div>
 
         {done ? (
           <>
-            <p style={{ color: "#F5F5F7", marginTop: 0 }}>Denúncia enviada 🔥</p>
-            <p style={{ color: "#9A9AA0", fontSize: 13.5, marginTop: 4 }}>
+            <p style={{ color: "var(--text)", marginTop: 0 }}>Denúncia enviada 🔥</p>
+            <p style={{ color: "var(--text-muted)", fontSize: 13.5, marginTop: 4 }}>
               Os admins vão analisar o que rolou com {targetLabel}.
             </p>
             <button
@@ -106,7 +106,7 @@ export function ReportDialog({
           </>
         ) : (
           <>
-            <p style={{ color: "#9A9AA0", fontSize: 13.5, marginTop: 0, marginBottom: 14 }}>
+            <p style={{ color: "var(--text-muted)", fontSize: 13.5, marginTop: 0, marginBottom: 14 }}>
               Diz o que houve com {targetLabel}. A denúncia é anônima pra quem foi denunciado.
             </p>
 
@@ -119,9 +119,9 @@ export function ReportDialog({
                     textAlign: "left",
                     padding: "10px 12px",
                     borderRadius: 10,
-                    background: reason === r ? "rgba(255,27,107,0.15)" : "#1E1C22",
+                    background: reason === r ? "rgba(255,27,107,0.15)" : "var(--surface-up)",
                     border: reason === r ? "1px solid #FF1B6B" : "1px solid rgba(255,255,255,0.06)",
-                    color: reason === r ? "#FF1B6B" : "#F5F5F7",
+                    color: reason === r ? "#FF1B6B" : "var(--text)",
                     fontWeight: 600,
                     fontSize: 14,
                     cursor: "pointer"
@@ -140,11 +140,11 @@ export function ReportDialog({
               maxLength={400}
               style={{
                 width: "100%",
-                background: "#1E1C22",
+                background: "var(--surface-up)",
                 border: "1px solid rgba(255,255,255,0.08)",
                 borderRadius: 10,
                 padding: 12,
-                color: "#F5F5F7",
+                color: "var(--text)",
                 fontSize: 14,
                 outline: "none",
                 resize: "vertical"
@@ -156,7 +156,7 @@ export function ReportDialog({
             <div style={{ display: "flex", gap: 8, marginTop: 14 }}>
               <button
                 onClick={onClose}
-                style={{ flex: 1, padding: "11px 12px", borderRadius: 10, background: "transparent", border: "1px solid rgba(255,255,255,0.1)", color: "#9A9AA0", fontWeight: 700, cursor: "pointer" }}
+                style={{ flex: 1, padding: "11px 12px", borderRadius: 10, background: "transparent", border: "1px solid rgba(255,255,255,0.1)", color: "var(--text-muted)", fontWeight: 700, cursor: "pointer" }}
               >
                 Cancelar
               </button>

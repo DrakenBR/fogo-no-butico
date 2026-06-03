@@ -11,7 +11,7 @@ export default function SignupPage({ searchParams }: { searchParams: { error?: s
           <h1 className="display" style={{ fontSize: 36, marginTop: 14, lineHeight: 1 }}>
             CRIA SEU <span style={{ color: "#FF1B6B" }}>BUTICO</span>
           </h1>
-          <p style={{ color: "#9A9AA0", marginTop: 10 }}>É de graça e sem moderação chata</p>
+          <p style={{ color: "var(--text-muted)", marginTop: 10 }}>É de graça e sem moderação chata</p>
         </div>
 
         <form action={signup} style={{ display: "flex", flexDirection: "column", gap: 12 }}>
@@ -23,7 +23,7 @@ export default function SignupPage({ searchParams }: { searchParams: { error?: s
           <button type="submit" className="fire-bg display" style={btnStyle}>BORA</button>
         </form>
 
-        <div style={{ textAlign: "center", marginTop: 22, color: "#9A9AA0" }}>
+        <div style={{ textAlign: "center", marginTop: 22, color: "var(--text-muted)" }}>
           Já tem conta?{" "}
           <Link href="/login" style={{ color: "#FF1B6B", textDecoration: "none", fontWeight: 700 }}>
             entrar
@@ -35,11 +35,11 @@ export default function SignupPage({ searchParams }: { searchParams: { error?: s
 }
 
 const inputStyle: React.CSSProperties = {
-  background: "#161519",
+  background: "var(--surface)",
   border: "1px solid rgba(255,255,255,0.08)",
   borderRadius: 12,
   padding: "14px 16px",
-  color: "#F5F5F7",
+  color: "var(--text)",
   fontSize: 15,
   outline: "none"
 };

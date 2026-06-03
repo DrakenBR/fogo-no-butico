@@ -18,7 +18,7 @@ export default async function OnboardingPage({ searchParams }: { searchParams: {
           <h1 className="display" style={{ fontSize: 32, marginTop: 12, lineHeight: 1 }}>
             BORA <span style={{ color: "#FF1B6B" }}>ARRUMAR</span> TEU BUTICO
           </h1>
-          <p style={{ color: "#9A9AA0", marginTop: 8 }}>uns dados rapidinho e tu tá no fogo</p>
+          <p style={{ color: "var(--text-muted)", marginTop: 8 }}>uns dados rapidinho e tu tá no fogo</p>
         </div>
 
         <OnboardingForm

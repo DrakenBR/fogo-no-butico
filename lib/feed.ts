@@ -15,7 +15,7 @@ export async function getFeed(
     .select(
       `
       id, user_id, media_url, media_type, caption, created_at, edited_at, scheduled_for,
-      media_urls, media_types, original_post_id, poll,
+      media_urls, media_types, original_post_id, poll, is_anonymous,
       author:profiles!posts_user_id_fkey(id, username, display_name, avatar_url, city, looking_for),
       reactions(user_id),
       comments(count),
@@ -30,6 +30,20 @@ export async function getFeed(
   const { data: posts, error } = await query;
 
   if (error || !posts) return { posts: [], meId };
+
+  // Quem eu já matchei (revelado pra mim)
+  let matchedIds = new Set<string>();
+  if (meId) {
+    const { data: convs } = await supabase
+      .from("conversations")
+      .select("user_a, user_b")
+      .or(`user_a.eq.${meId},user_b.eq.${meId}`);
+    if (convs) {
+      for (const c of convs as { user_a: string; user_b: string }[]) {
+        matchedIds.add(c.user_a === meId ? c.user_b : c.user_a);
+      }
+    }
+  }
 
   // Fetch dos posts originais (pros reposts) em uma query separada — evita o
   // problema de self-reference + nested author que confunde o PostgREST
@@ -52,6 +66,8 @@ export async function getFeed(
     const reacts: Array<{ user_id: string }> = p.reactions ?? [];
     const commentsCount: number = p.comments?.[0]?.count ?? 0;
     const saved: Array<{ user_id: string }> = p.saved_posts ?? [];
+    const isAuthor = meId === p.user_id;
+    const hiddenAnonymous = !!p.is_anonymous && !isAuthor && !matchedIds.has(p.user_id);
     return {
       id: p.id,
       user_id: p.user_id,
@@ -65,12 +81,14 @@ export async function getFeed(
       media_types: p.media_types ?? null,
       original_post_id: p.original_post_id ?? null,
       poll: p.poll ?? null,
+      is_anonymous: !!p.is_anonymous,
       author: p.author,
       original: p.original_post_id ? originalsMap[p.original_post_id] ?? null : null,
       fires: reacts.length,
       comments_count: commentsCount,
       liked_by_me: meId ? reacts.some((r) => r.user_id === meId) : false,
-      saved_by_me: meId ? saved.some((r) => r.user_id === meId) : false
+      saved_by_me: meId ? saved.some((r) => r.user_id === meId) : false,
+      hidden_anonymous: hiddenAnonymous
     };
   });
 

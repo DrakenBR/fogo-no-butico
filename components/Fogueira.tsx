@@ -58,7 +58,7 @@ export function Fogueira({ groups: initialGroups, meId }: { groups: StoryGroup[]
               width: 62,
               height: 62,
               borderRadius: "50%",
-              background: "#1E1C22",
+              background: "var(--surface-up)",
               border: "2px dashed #FF1B6B",
               display: "flex",
               alignItems: "center",
@@ -67,7 +67,7 @@ export function Fogueira({ groups: initialGroups, meId }: { groups: StoryGroup[]
           >
             <PlusCircle size={26} color="#FF1B6B" />
           </div>
-          <span style={{ fontSize: 12, color: "#9A9AA0", maxWidth: 64, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+          <span style={{ fontSize: 12, color: "var(--text-muted)", maxWidth: 64, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
             Você
           </span>
         </Link>
@@ -99,7 +99,7 @@ export function Fogueira({ groups: initialGroups, meId }: { groups: StoryGroup[]
             <span
               style={{
                 fontSize: 12,
-                color: g.hasUnviewed ? "#F5F5F7" : "#9A9AA0",
+                color: g.hasUnviewed ? "var(--text)" : "var(--text-muted)",
                 maxWidth: 64,
                 overflow: "hidden",
                 textOverflow: "ellipsis",

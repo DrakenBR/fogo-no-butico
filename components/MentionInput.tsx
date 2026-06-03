@@ -135,7 +135,7 @@ export function MentionInput({
             bottom: "calc(100% + 6px)",
             left: 0,
             right: 0,
-            background: "#1E1C22",
+            background: "var(--surface-up)",
             border: "1px solid rgba(255,255,255,0.10)",
             borderRadius: 12,
             padding: 4,
@@ -162,7 +162,7 @@ export function MentionInput({
                 borderRadius: 8,
                 background: i === highlight ? "rgba(255,27,107,0.15)" : "transparent",
                 border: "none",
-                color: "#F5F5F7",
+                color: "var(--text)",
                 width: "100%",
                 cursor: "pointer",
                 textAlign: "left"
@@ -173,7 +173,7 @@ export function MentionInput({
                 <div style={{ fontWeight: 700, fontSize: 13.5, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                   {s.display_name}
                 </div>
-                <div style={{ color: "#9A9AA0", fontSize: 12 }}>@{s.username}</div>
+                <div style={{ color: "var(--text-muted)", fontSize: 12 }}>@{s.username}</div>
               </div>
             </button>
           ))}

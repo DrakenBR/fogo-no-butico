@@ -26,7 +26,7 @@ export default async function CurtidasPage() {
             QUEM TE <span style={{ color: "#FF1B6B" }}>CURTIU</span>
           </h1>
         </div>
-        <p style={{ color: "#9A9AA0", marginTop: -8, marginBottom: 24 }}>
+        <p style={{ color: "var(--text-muted)", marginTop: -8, marginBottom: 24 }}>
           Você tem <span style={{ color: "#FF1B6B", fontWeight: 700 }}>{unrevealed.length}</span> butico{unrevealed.length === 1 ? "" : "s"} secreto{unrevealed.length === 1 ? "" : "s"} de fogo 🔥
         </p>
 
@@ -40,11 +40,11 @@ export default async function CurtidasPage() {
           </>
         )}
 
-        <div style={{ color: "#9A9AA0", fontSize: 12, fontWeight: 700, letterSpacing: 0.5, marginBottom: 10 }}>
+        <div style={{ color: "var(--text-muted)", fontSize: 12, fontWeight: 700, letterSpacing: 0.5, marginBottom: 10 }}>
           NÃO REVELADOS
         </div>
         {unrevealed.length === 0 ? (
-          <div style={{ color: "#9A9AA0", padding: 30, textAlign: "center" }}>
+          <div style={{ color: "var(--text-muted)", padding: 30, textAlign: "center" }}>
             Ninguém te curtiu em segredo ainda. Posta mais 🔥
           </div>
         ) : (

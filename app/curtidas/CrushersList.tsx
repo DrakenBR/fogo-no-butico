@@ -18,7 +18,7 @@ export function CrushersList({ rows, revealed }: { rows: CrusherPreview[]; revea
           key={r.preview_id}
           style={{
             position: "relative",
-            background: "#161519",
+            background: "var(--surface)",
             border: revealed ? "1px solid #FF1B6B" : "1px solid rgba(255,255,255,0.08)",
             borderRadius: 16,
             overflow: "hidden",

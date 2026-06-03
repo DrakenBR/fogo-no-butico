@@ -68,7 +68,7 @@ export function SidebarUserMenu({ me }: { me: Profile }) {
           <div style={{ fontWeight: 700, fontSize: 14, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
             {me.display_name}
           </div>
-          <div style={{ color: "#9A9AA0", fontSize: 12, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+          <div style={{ color: "var(--text-muted)", fontSize: 12, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
             @{me.username}
           </div>
         </div>
@@ -82,7 +82,7 @@ export function SidebarUserMenu({ me }: { me: Profile }) {
             bottom: "calc(100% + 6px)",
             left: 0,
             right: 0,
-            background: "#1E1C22",
+            background: "var(--surface-up)",
             border: "1px solid rgba(255,255,255,0.10)",
             borderRadius: 12,
             padding: 6,
@@ -122,7 +122,7 @@ export function SidebarUserMenu({ me }: { me: Profile }) {
             {theme === "dark" ? <Sun size={16} /> : <Moon size={16} />}
             Tema {theme === "dark" ? "claro" : "escuro"}
           </button>
-          <div style={{ height: 1, background: "rgba(255,255,255,0.08)", margin: "4px 6px" }} />
+          <div style={{ height: 1, background: "var(--border)", margin: "4px 6px" }} />
           <form action={logout} style={{ margin: 0 }}>
             <button
               type="submit"
@@ -145,7 +145,7 @@ const item: React.CSSProperties = {
   padding: "10px 12px",
   borderRadius: 8,
   textDecoration: "none",
-  color: "#F5F5F7",
+  color: "var(--text)",
   fontSize: 14,
   fontWeight: 600
 };

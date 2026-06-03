@@ -82,7 +82,7 @@ export function PostsAdminTable() {
         </h2>
       </div>
 
-      {loading && <div style={{ color: "#9A9AA0", padding: 20 }}>Carregando...</div>}
+      {loading && <div style={{ color: "var(--text-muted)", padding: 20 }}>Carregando...</div>}
       {err && <div style={{ color: "#FF6A9E", padding: 12 }}>{err}</div>}
 
       {!loading && !err && (
@@ -97,7 +97,7 @@ export function PostsAdminTable() {
             <div
               key={p.id}
               style={{
-                background: "#161519",
+                background: "var(--surface)",
                 border: "1px solid rgba(255,255,255,0.08)",
                 borderRadius: 14,
                 overflow: "hidden",
@@ -118,19 +118,19 @@ export function PostsAdminTable() {
                   <Link
                     href={`/perfil/${p.author?.username}`}
                     target="_blank"
-                    style={{ color: "#F5F5F7", fontWeight: 700, textDecoration: "none", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}
+                    style={{ color: "var(--text)", fontWeight: 700, textDecoration: "none", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}
                   >
                     @{p.author?.username}
                   </Link>
-                  <span style={{ color: "#9A9AA0" }}>{timeAgo(p.created_at)}</span>
+                  <span style={{ color: "var(--text-muted)" }}>{timeAgo(p.created_at)}</span>
                 </div>
                 {p.caption && (
-                  <div style={{ color: "#9A9AA0", fontSize: 12, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>
+                  <div style={{ color: "var(--text-muted)", fontSize: 12, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>
                     {p.caption}
                   </div>
                 )}
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "auto", paddingTop: 6, fontSize: 12.5 }}>
-                  <div style={{ display: "flex", gap: 10, color: "#9A9AA0" }}>
+                  <div style={{ display: "flex", gap: 10, color: "var(--text-muted)" }}>
                     <span style={{ display: "flex", alignItems: "center", gap: 3, color: "#FF1B6B", fontWeight: 700 }}>
                       <Flame size={13} fill="#FF1B6B" /> {p.fires}
                     </span>
@@ -147,7 +147,7 @@ export function PostsAdminTable() {
                         border: "1px solid rgba(255,255,255,0.1)",
                         borderRadius: 8,
                         padding: "4px 6px",
-                        color: "#9A9AA0",
+                        color: "var(--text-muted)",
                         textDecoration: "none",
                         display: "flex",
                         alignItems: "center"
@@ -178,7 +178,7 @@ export function PostsAdminTable() {
             </div>
           ))}
           {rows.length === 0 && (
-            <div style={{ gridColumn: "1/-1", padding: 24, textAlign: "center", color: "#9A9AA0" }}>
+            <div style={{ gridColumn: "1/-1", padding: 24, textAlign: "center", color: "var(--text-muted)" }}>
               Sem posts.
             </div>
           )}

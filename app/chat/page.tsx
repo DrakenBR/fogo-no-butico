@@ -27,7 +27,7 @@ export default async function ChatListPage() {
       </div>
 
       {matches.length === 0 ? (
-        <div style={{ padding: "60px 22px", textAlign: "center", color: "#9A9AA0" }}>
+        <div style={{ padding: "60px 22px", textAlign: "center", color: "var(--text-muted)" }}>
           <Flame size={42} color="#FF1B6B" style={{ margin: "0 auto 12px", opacity: 0.5 }} />
           <div style={{ fontSize: 15 }}>Nenhum match ainda</div>
           <div style={{ fontSize: 13, marginTop: 4 }}>Quando alguém te curtir de volta, vai aparecer aqui</div>
@@ -58,14 +58,14 @@ export default async function ChatListPage() {
                     </span>
                   )}
                 </div>
-                <div style={{ color: m.unread_count > 0 ? "#F5F5F7" : "#9A9AA0", fontSize: 13.5, marginTop: 2, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", fontWeight: m.unread_count > 0 ? 600 : 400 }}>
+                <div style={{ color: m.unread_count > 0 ? "var(--text)" : "var(--text-muted)", fontSize: 13.5, marginTop: 2, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", fontWeight: m.unread_count > 0 ? 600 : 400 }}>
                   {m.last_message_body
                     ? `${m.last_message_sender === m.other_id ? "" : "Você: "}${m.last_message_body}`
                     : "Bota fogo no chat 🔥"}
                 </div>
               </div>
               <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 4, flexShrink: 0 }}>
-                <span style={{ color: "#9A9AA0", fontSize: 11.5 }}>
+                <span style={{ color: "var(--text-muted)", fontSize: 11.5 }}>
                   {timeAgo(m.last_message_at ?? m.matched_at)}
                 </span>
                 {m.unread_count > 0 && (

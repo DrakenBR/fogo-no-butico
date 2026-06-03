@@ -166,7 +166,7 @@ export function CommentsModal({
           width: "100%",
           maxWidth: 560,
           maxHeight: "85vh",
-          background: "#161519",
+          background: "var(--surface)",
           borderTopLeftRadius: 22,
           borderTopRightRadius: 22,
           borderTop: "1px solid rgba(255,255,255,0.08)",
@@ -176,15 +176,15 @@ export function CommentsModal({
       >
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "16px 18px", borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
           <span className="display" style={{ fontSize: 18 }}>COMENTÁRIOS</span>
-          <button onClick={onClose} style={{ background: "none", border: "none", cursor: "pointer", color: "#F5F5F7" }}>
+          <button onClick={onClose} style={{ background: "none", border: "none", cursor: "pointer", color: "var(--text)" }}>
             <X size={22} />
           </button>
         </div>
 
         <div style={{ flex: 1, overflowY: "auto", padding: "10px 18px" }}>
-          {loading && <div style={{ color: "#9A9AA0", padding: 20, textAlign: "center" }}>Carregando...</div>}
+          {loading && <div style={{ color: "var(--text-muted)", padding: 20, textAlign: "center" }}>Carregando...</div>}
           {!loading && comments.length === 0 && (
-            <div style={{ color: "#9A9AA0", padding: 24, textAlign: "center" }}>Ninguém comentou ainda. Quebra o gelo 🔥</div>
+            <div style={{ color: "var(--text-muted)", padding: 24, textAlign: "center" }}>Ninguém comentou ainda. Quebra o gelo 🔥</div>
           )}
           {comments.map((c) => {
             const fires = c.comment_reactions?.length ?? 0;
@@ -197,7 +197,7 @@ export function CommentsModal({
                     <span style={{ fontWeight: 700, marginRight: 6 }}>{c.profiles?.display_name ?? "anônimo"}</span>
                     {renderMentions(c.body)}
                   </div>
-                  <div style={{ display: "flex", alignItems: "center", gap: 12, color: "#9A9AA0", fontSize: 11.5, marginTop: 4 }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 12, color: "var(--text-muted)", fontSize: 11.5, marginTop: 4 }}>
                     <span>{timeAgo(c.created_at)}</span>
                     <CommentFireButton commentId={c.id} initialFires={fires} initialLit={litByMe} meId={meId} />
                   </div>
@@ -217,11 +217,11 @@ export function CommentsModal({
               excludeUserId={meId}
               style={{
                 width: "100%",
-                background: "#1E1C22",
+                background: "var(--surface-up)",
                 border: "1px solid rgba(255,255,255,0.08)",
                 borderRadius: 24,
                 padding: "11px 16px",
-                color: "#F5F5F7",
+                color: "var(--text)",
                 fontSize: 14,
                 outline: "none"
               }}
@@ -248,7 +248,7 @@ export function CommentsModal({
             </button>
           </div>
         ) : (
-          <div style={{ padding: 16, textAlign: "center", color: "#9A9AA0", borderTop: "1px solid rgba(255,255,255,0.08)" }}>
+          <div style={{ padding: 16, textAlign: "center", color: "var(--text-muted)", borderTop: "1px solid rgba(255,255,255,0.08)" }}>
             Faça login pra comentar
           </div>
         )}

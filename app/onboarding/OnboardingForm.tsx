@@ -178,7 +178,7 @@ export function OnboardingForm({
         <Avatar src={avatarPreview} seed={username || displayName} initial={displayName || "?"} size={72} ring />
         <div>
           <div style={{ fontWeight: 700 }}>Foto de perfil</div>
-          <div style={{ color: "#9A9AA0", fontSize: 13 }}>toque pra escolher</div>
+          <div style={{ color: "var(--text-muted)", fontSize: 13 }}>toque pra escolher</div>
         </div>
         <input type="file" accept="image/*" onChange={(e) => onAvatar(e.target.files?.[0] ?? null)} style={{ display: "none" }} />
       </label>
@@ -222,8 +222,8 @@ export function OnboardingForm({
                 padding: "12px 8px",
                 borderRadius: 12,
                 border: lookingFor === opt ? "1px solid #FF1B6B" : "1px solid rgba(255,255,255,0.08)",
-                background: lookingFor === opt ? "rgba(255,27,107,0.15)" : "#161519",
-                color: lookingFor === opt ? "#FF1B6B" : "#F5F5F7",
+                background: lookingFor === opt ? "rgba(255,27,107,0.15)" : "var(--surface)",
+                color: lookingFor === opt ? "#FF1B6B" : "var(--text)",
                 fontWeight: 600,
                 cursor: "pointer",
                 fontSize: 14
@@ -246,7 +246,7 @@ export function OnboardingForm({
               <div style={{ flex: 1, padding: "11px 14px", background: "rgba(255,27,107,0.08)", border: "1px solid rgba(255,27,107,0.25)", borderRadius: 12, color: "#FF1B6B", fontSize: 13.5, fontWeight: 600, display: "flex", alignItems: "center", gap: 8 }}>
                 <MapPin size={15} /> {lat.toFixed(3)}, {lng.toFixed(3)}
               </div>
-              <button type="button" onClick={clearLocation} style={{ padding: "11px 12px", borderRadius: 12, background: "transparent", border: "1px solid rgba(255,255,255,0.08)", color: "#9A9AA0", cursor: "pointer", fontWeight: 600, fontSize: 13 }}>
+              <button type="button" onClick={clearLocation} style={{ padding: "11px 12px", borderRadius: 12, background: "transparent", border: "1px solid rgba(255,255,255,0.08)", color: "var(--text-muted)", cursor: "pointer", fontWeight: 600, fontSize: 13 }}>
                 Limpar
               </button>
             </>
@@ -255,14 +255,14 @@ export function OnboardingForm({
               type="button"
               onClick={useLocation}
               disabled={geoStatus === "asking"}
-              style={{ flex: 1, padding: "11px 14px", borderRadius: 12, background: "#161519", border: "1px dashed rgba(255,27,107,0.45)", color: "#FF1B6B", fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8, fontSize: 14 }}
+              style={{ flex: 1, padding: "11px 14px", borderRadius: 12, background: "var(--surface)", border: "1px dashed rgba(255,27,107,0.45)", color: "#FF1B6B", fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8, fontSize: 14 }}
             >
               <MapPin size={16} /> {geoStatus === "asking" ? "Pegando GPS..." : "Usar minha localização"}
             </button>
           )}
         </div>
         {geoErr && <div style={{ color: "#FF6A9E", fontSize: 12.5, marginTop: 6 }}>{geoErr}</div>}
-        <div style={{ color: "#9A9AA0", fontSize: 12, marginTop: 6 }}>
+        <div style={{ color: "var(--text-muted)", fontSize: 12, marginTop: 6 }}>
           Pra outros encontrarem você por proximidade. Compartilha só lat/lng (sem endereço).
         </div>
       </Field>
@@ -270,11 +270,11 @@ export function OnboardingForm({
       <Field label={`Links (até ${MAX_LINKS})`}>
         <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
           {links.length === 0 && (
-            <div style={{ color: "#9A9AA0", fontSize: 13 }}>Sem links ainda. Adiciona pra divulgar teu insta, loja, canal, etc.</div>
+            <div style={{ color: "var(--text-muted)", fontSize: 13 }}>Sem links ainda. Adiciona pra divulgar teu insta, loja, canal, etc.</div>
           )}
           {links.map((l, i) => (
             <div key={i} style={{ display: "flex", gap: 8, alignItems: "stretch" }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 6, padding: "0 12px", background: "#161519", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 12 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 6, padding: "0 12px", background: "var(--surface)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 12 }}>
                 <LinkIcon type={l.type} size={16} color={LINK_TYPES.find((t) => t.id === l.type)?.color ?? "#FF1B6B"} />
                 <select
                   value={l.type}
@@ -282,7 +282,7 @@ export function OnboardingForm({
                   style={{
                     background: "transparent",
                     border: "none",
-                    color: "#F5F5F7",
+                    color: "var(--text)",
                     fontSize: 14,
                     padding: "12px 0",
                     outline: "none",
@@ -290,7 +290,7 @@ export function OnboardingForm({
                   }}
                 >
                   {LINK_TYPES.map((t) => (
-                    <option key={t.id} value={t.id} style={{ background: "#161519" }}>
+                    <option key={t.id} value={t.id} style={{ background: "var(--surface)" }}>
                       {t.label}
                     </option>
                   ))}
@@ -312,7 +312,7 @@ export function OnboardingForm({
                   border: "1px solid rgba(255,255,255,0.08)",
                   borderRadius: 12,
                   width: 44,
-                  color: "#9A9AA0",
+                  color: "var(--text-muted)",
                   cursor: "pointer",
                   display: "flex",
                   alignItems: "center",
@@ -401,18 +401,18 @@ function ClientPushBtn() {
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <label style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-      <span style={{ fontSize: 13, color: "#9A9AA0" }}>{label}</span>
+      <span style={{ fontSize: 13, color: "var(--text-muted)" }}>{label}</span>
       {children}
     </label>
   );
 }
 
 const inputStyle: React.CSSProperties = {
-  background: "#161519",
+  background: "var(--surface)",
   border: "1px solid rgba(255,255,255,0.08)",
   borderRadius: 12,
   padding: "13px 14px",
-  color: "#F5F5F7",
+  color: "var(--text)",
   fontSize: 15,
   outline: "none",
   width: "100%"

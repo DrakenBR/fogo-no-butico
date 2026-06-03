@@ -108,7 +108,7 @@ export function StoryViewer({
           maxWidth: 420,
           aspectRatio: "9/16",
           borderRadius: 22,
-          background: "#0D0D0F",
+          background: "var(--bg)",
           position: "relative",
           overflow: "hidden",
           border: "1px solid rgba(255,255,255,0.08)"
@@ -273,14 +273,14 @@ function HighlightDialog({
         onClick={(e) => e.stopPropagation()}
         style={{
           width: "100%",
-          background: "#161519",
+          background: "var(--surface)",
           border: "1px solid rgba(255,255,255,0.08)",
           borderRadius: 14,
           padding: 16
         }}
       >
         <div className="display" style={{ fontSize: 16, color: "#FFB13D", marginBottom: 8 }}>DESTAQUE</div>
-        <p style={{ color: "#9A9AA0", fontSize: 12.5, margin: "0 0 12px" }}>
+        <p style={{ color: "var(--text-muted)", fontSize: 12.5, margin: "0 0 12px" }}>
           Dá um nome pra coleção. Esse story fica no teu perfil mesmo depois das 24h.
         </p>
         <input
@@ -290,11 +290,11 @@ function HighlightDialog({
           placeholder="Ex: Festas, Viagens..."
           style={{
             width: "100%",
-            background: "#1E1C22",
+            background: "var(--surface-up)",
             border: "1px solid rgba(255,255,255,0.08)",
             borderRadius: 10,
             padding: "10px 12px",
-            color: "#F5F5F7",
+            color: "var(--text)",
             fontSize: 14,
             outline: "none",
             marginBottom: 12
@@ -313,7 +313,7 @@ function HighlightDialog({
           <button
             onClick={onClose}
             disabled={pending}
-            style={{ padding: "10px 12px", borderRadius: 10, background: "transparent", border: "1px solid rgba(255,255,255,0.1)", color: "#9A9AA0", fontWeight: 700, cursor: "pointer", fontSize: 13 }}
+            style={{ padding: "10px 12px", borderRadius: 10, background: "transparent", border: "1px solid rgba(255,255,255,0.1)", color: "var(--text-muted)", fontWeight: 700, cursor: "pointer", fontSize: 13 }}
           >
             Cancelar
           </button>

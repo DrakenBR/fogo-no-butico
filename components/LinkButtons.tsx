@@ -23,7 +23,7 @@ export function LinkButtons({ links }: { links: ProfileLink[] }) {
               gap: 7,
               padding: "9px 14px",
               borderRadius: 999,
-              background: "rgba(255,255,255,0.04)",
+              background: "var(--border-soft-2)",
               border: `1px solid ${meta.color}55`,
               color: meta.color,
               textDecoration: "none",

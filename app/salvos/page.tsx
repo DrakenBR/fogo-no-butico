@@ -33,7 +33,7 @@ export default async function SalvosPage() {
         </div>
 
         {items.length === 0 ? (
-          <div style={{ padding: "60px 22px", textAlign: "center", color: "#9A9AA0" }}>
+          <div style={{ padding: "60px 22px", textAlign: "center", color: "var(--text-muted)" }}>
             <Bookmark size={42} style={{ margin: "0 auto 12px", opacity: 0.5 }} />
             <div style={{ fontSize: 15 }}>Nenhum post salvo ainda</div>
             <div style={{ fontSize: 13, marginTop: 4 }}>Clica no ícone de marcador num post pra guardar pra depois</div>

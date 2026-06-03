@@ -89,7 +89,7 @@ export function FireButton({ postId, initialFires, initialLit, meId }: Props) {
         display: "flex",
         alignItems: "center",
         gap: 7,
-        color: lit ? "#FF1B6B" : "#F5F5F7",
+        color: lit ? "#FF1B6B" : "var(--text)",
         padding: 0
       }}
       aria-pressed={lit}
@@ -97,7 +97,7 @@ export function FireButton({ postId, initialFires, initialLit, meId }: Props) {
     >
       <Flame
         size={26}
-        color={lit ? "#FF1B6B" : "#F5F5F7"}
+        color={lit ? "#FF1B6B" : "var(--text)"}
         fill={lit ? "#FF1B6B" : "none"}
         className={bumping ? "animate-pulse-fire" : ""}
       />

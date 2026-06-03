@@ -1,6 +1,6 @@
 "use client";
 
-import { Flame, ImagePlus, X, Music, Vote, Plus, Trash2, Clock, Sparkles, ChevronLeft, ChevronRight } from "lucide-react";
+import { Flame, ImagePlus, X, Music, Vote, Plus, Trash2, Clock, Sparkles, ChevronLeft, ChevronRight, EyeOff } from "lucide-react";
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
@@ -42,6 +42,9 @@ export function PostarForm({ userId, initialTab }: { userId: string; initialTab:
 
   // AGENDAMENTO
   const [scheduleH, setScheduleH] = useState(0);
+
+  // ANÔNIMO
+  const [isAnon, setIsAnon] = useState(false);
 
   const MAX_SLOTS = tab === "post" ? 6 : 1;
 
@@ -147,7 +150,8 @@ export function PostarForm({ userId, initialTab }: { userId: string; initialTab:
           media_types: urls.length > 1 ? types : null,
           caption: caption.trim() || null,
           poll: pollPayload,
-          scheduled_for: scheduledFor
+          scheduled_for: scheduledFor,
+          is_anonymous: isAnon
         });
         if (insErr) {
           setErr(insErr.message);
@@ -177,7 +181,7 @@ export function PostarForm({ userId, initialTab }: { userId: string; initialTab:
 
   return (
     <form onSubmit={submit} style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-      <div style={{ display: "flex", gap: 6, background: "#161519", padding: 4, borderRadius: 12, border: "1px solid rgba(255,255,255,0.08)" }}>
+      <div style={{ display: "flex", gap: 6, background: "var(--surface)", padding: 4, borderRadius: 12, border: "1px solid rgba(255,255,255,0.08)" }}>
         {(["post", "story"] as Tab[]).map((t) => (
           <button
             key={t}
@@ -193,7 +197,7 @@ export function PostarForm({ userId, initialTab }: { userId: string; initialTab:
               border: "none",
               borderRadius: 8,
               background: tab === t ? "rgba(255,27,107,0.18)" : "transparent",
-              color: tab === t ? "#FF1B6B" : "#9A9AA0",
+              color: tab === t ? "#FF1B6B" : "var(--text-muted)",
               fontWeight: 700,
               cursor: "pointer",
               fontSize: 14
@@ -207,7 +211,7 @@ export function PostarForm({ userId, initialTab }: { userId: string; initialTab:
       <label
         style={{
           aspectRatio: tab === "story" ? "9/16" : "4/5",
-          background: cur ? "#000" : "#161519",
+          background: cur ? "#000" : "var(--surface)",
           border: "1px dashed rgba(255,255,255,0.15)",
           borderRadius: 18,
           display: "flex",
@@ -223,7 +227,7 @@ export function PostarForm({ userId, initialTab }: { userId: string; initialTab:
         }}
       >
         {!cur && (
-          <div style={{ textAlign: "center", color: "#9A9AA0" }}>
+          <div style={{ textAlign: "center", color: "var(--text-muted)" }}>
             <ImagePlus size={42} style={{ margin: "0 auto 8px" }} />
             <div style={{ fontWeight: 600 }}>Toque pra escolher</div>
             <div style={{ fontSize: 12, marginTop: 4 }}>{tab === "post" ? "foto ou vídeo (até 6)" : "foto ou vídeo"}</div>
@@ -287,9 +291,9 @@ export function PostarForm({ userId, initialTab }: { userId: string; initialTab:
                   style={{
                     padding: "6px 12px",
                     borderRadius: 999,
-                    background: cur.filter === f ? "rgba(255,27,107,0.15)" : "#161519",
+                    background: cur.filter === f ? "rgba(255,27,107,0.15)" : "var(--surface)",
                     border: cur.filter === f ? "1px solid #FF1B6B" : "1px solid rgba(255,255,255,0.08)",
-                    color: cur.filter === f ? "#FF1B6B" : "#F5F5F7",
+                    color: cur.filter === f ? "#FF1B6B" : "var(--text)",
                     cursor: "pointer",
                     fontSize: 12,
                     fontWeight: 600,
@@ -320,11 +324,11 @@ export function PostarForm({ userId, initialTab }: { userId: string; initialTab:
         maxLength={500}
         rows={3}
         style={{
-          background: "#161519",
+          background: "var(--surface)",
           border: "1px solid rgba(255,255,255,0.08)",
           borderRadius: 12,
           padding: 14,
-          color: "#F5F5F7",
+          color: "var(--text)",
           fontSize: 15,
           outline: "none",
           resize: "vertical"
@@ -332,7 +336,7 @@ export function PostarForm({ userId, initialTab }: { userId: string; initialTab:
       />
 
       {tab === "story" && (
-        <label style={{ display: "flex", alignItems: "center", gap: 10, padding: "11px 14px", background: audioFile ? "rgba(255,177,61,0.08)" : "#161519", border: audioFile ? "1px solid #FFB13D" : "1px dashed rgba(255,177,61,0.45)", borderRadius: 12, color: audioFile ? "#FFB13D" : "#9A9AA0", cursor: "pointer", fontSize: 13.5, fontWeight: 600 }}>
+        <label style={{ display: "flex", alignItems: "center", gap: 10, padding: "11px 14px", background: audioFile ? "rgba(255,177,61,0.08)" : "var(--surface)", border: audioFile ? "1px solid #FFB13D" : "1px dashed rgba(255,177,61,0.45)", borderRadius: 12, color: audioFile ? "#FFB13D" : "var(--text-muted)", cursor: "pointer", fontSize: 13.5, fontWeight: 600 }}>
           <Music size={16} />
           {audioFile ? `Áudio: ${audioFile.name}` : "Adicionar trilha (opcional)"}
           {audioFile && (
@@ -346,7 +350,7 @@ export function PostarForm({ userId, initialTab }: { userId: string; initialTab:
 
       {tab === "post" && (
         <>
-          <div style={{ background: "#161519", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 12, padding: 12 }}>
+          <div style={{ background: "var(--surface)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 12, padding: 12 }}>
             <label style={{ display: "flex", alignItems: "center", gap: 10, cursor: "pointer", fontSize: 14, fontWeight: 600 }}>
               <input type="checkbox" checked={hasPoll} onChange={(e) => setHasPoll(e.target.checked)} style={{ accentColor: "#FF1B6B" }} />
               <Vote size={16} color="#FF1B6B" />
@@ -354,12 +358,12 @@ export function PostarForm({ userId, initialTab }: { userId: string; initialTab:
             </label>
             {hasPoll && (
               <div style={{ marginTop: 12, display: "flex", flexDirection: "column", gap: 8 }}>
-                <input value={pollQuestion} onChange={(e) => setPollQuestion(e.target.value)} placeholder="Pergunta da enquete" maxLength={200} style={{ background: "#1E1C22", border: "1px solid rgba(255,255,255,0.06)", borderRadius: 8, padding: "10px 12px", color: "#F5F5F7", fontSize: 14, outline: "none" }} />
+                <input value={pollQuestion} onChange={(e) => setPollQuestion(e.target.value)} placeholder="Pergunta da enquete" maxLength={200} style={{ background: "var(--surface-up)", border: "1px solid rgba(255,255,255,0.06)", borderRadius: 8, padding: "10px 12px", color: "var(--text)", fontSize: 14, outline: "none" }} />
                 {pollOptions.map((opt, i) => (
                   <div key={i} style={{ display: "flex", gap: 6 }}>
-                    <input value={opt} onChange={(e) => setPollOptions(pollOptions.map((o, j) => (i === j ? e.target.value : o)))} placeholder={`Opção ${i + 1}`} maxLength={80} style={{ flex: 1, background: "#1E1C22", border: "1px solid rgba(255,255,255,0.06)", borderRadius: 8, padding: "9px 12px", color: "#F5F5F7", fontSize: 14, outline: "none" }} />
+                    <input value={opt} onChange={(e) => setPollOptions(pollOptions.map((o, j) => (i === j ? e.target.value : o)))} placeholder={`Opção ${i + 1}`} maxLength={80} style={{ flex: 1, background: "var(--surface-up)", border: "1px solid rgba(255,255,255,0.06)", borderRadius: 8, padding: "9px 12px", color: "var(--text)", fontSize: 14, outline: "none" }} />
                     {pollOptions.length > 2 && (
-                      <button type="button" onClick={() => setPollOptions(pollOptions.filter((_, j) => j !== i))} style={{ background: "transparent", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 8, color: "#9A9AA0", cursor: "pointer", padding: "0 10px" }}>
+                      <button type="button" onClick={() => setPollOptions(pollOptions.filter((_, j) => j !== i))} style={{ background: "transparent", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 8, color: "var(--text-muted)", cursor: "pointer", padding: "0 10px" }}>
                         <Trash2 size={14} />
                       </button>
                     )}
@@ -374,7 +378,20 @@ export function PostarForm({ userId, initialTab }: { userId: string; initialTab:
             )}
           </div>
 
-          <div style={{ background: "#161519", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 12, padding: 12 }}>
+          <div style={{ background: "var(--surface)", border: "1px solid var(--border)", borderRadius: 12, padding: 12 }}>
+            <label style={{ display: "flex", alignItems: "center", gap: 10, cursor: "pointer", fontSize: 14, fontWeight: 600 }}>
+              <input type="checkbox" checked={isAnon} onChange={(e) => setIsAnon(e.target.checked)} style={{ accentColor: "#FF1B6B" }} />
+              <EyeOff size={16} color="#C49BFF" />
+              Modo anônimo (só revela se der match)
+            </label>
+            {isAnon && (
+              <div style={{ color: "var(--text-muted)", fontSize: 12, marginTop: 8 }}>
+                Esse post vai aparecer como <span style={{ color: "#C49BFF", fontWeight: 700 }}>Butico Anônimo</span>. Quem te curtir só vai descobrir quem é se você curtir de volta.
+              </div>
+            )}
+          </div>
+
+          <div style={{ background: "var(--surface)", border: "1px solid var(--border)", borderRadius: 12, padding: 12 }}>
             <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8, fontSize: 14, fontWeight: 600 }}>
               <Clock size={16} color="#FFB13D" /> Quando publicar?
             </div>
@@ -387,9 +404,9 @@ export function PostarForm({ userId, initialTab }: { userId: string; initialTab:
                   style={{
                     padding: "6px 12px",
                     borderRadius: 999,
-                    background: scheduleH === opt.hours ? "rgba(255,177,61,0.15)" : "#1E1C22",
+                    background: scheduleH === opt.hours ? "rgba(255,177,61,0.15)" : "var(--surface-up)",
                     border: scheduleH === opt.hours ? "1px solid #FFB13D" : "1px solid rgba(255,255,255,0.06)",
-                    color: scheduleH === opt.hours ? "#FFB13D" : "#9A9AA0",
+                    color: scheduleH === opt.hours ? "#FFB13D" : "var(--text-muted)",
                     fontSize: 12,
                     fontWeight: 600,
                     cursor: "pointer"

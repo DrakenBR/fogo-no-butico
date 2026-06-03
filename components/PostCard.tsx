@@ -63,7 +63,7 @@ export function PostCard({ post, meId }: { post: FeedPost; meId: string | null }
   return (
     <article style={{ borderBottom: "1px solid rgba(255,255,255,0.08)", padding: "18px 0" }}>
       {isRepost && (
-        <div style={{ display: "flex", alignItems: "center", gap: 6, padding: "0 18px 6px", color: "#9A9AA0", fontSize: 12.5 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 6, padding: "0 18px 6px", color: "var(--text-muted)", fontSize: 12.5 }}>
           <Repeat size={13} color="#FF1B6B" />
           <Link href={`/perfil/${post.author.username}`} style={{ color: "inherit", textDecoration: "none", fontWeight: 600 }}>
             {post.author.display_name}
@@ -81,27 +81,65 @@ export function PostCard({ post, meId }: { post: FeedPost; meId: string | null }
       )}
 
       <div style={{ display: "flex", alignItems: "center", gap: 11, padding: "0 18px 14px" }}>
-        <Link href={`/perfil/${post.author.username}`}>
-          <Avatar src={post.author.avatar_url} seed={post.author.username} initial={post.author.display_name} />
-        </Link>
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <Link href={`/perfil/${post.author.username}`} style={{ textDecoration: "none", color: "inherit" }}>
-            <div style={{ fontWeight: 700, fontSize: 15 }}>{post.author.display_name}</div>
-          </Link>
-          <div style={{ display: "flex", alignItems: "center", gap: 4, color: "#9A9AA0", fontSize: 12.5 }}>
-            <MapPin size={12} /> {post.author.city || "—"} · {timeAgo(post.created_at)}
-            {post.edited_at && <span style={{ fontStyle: "italic", marginLeft: 4 }}>· editado</span>}
-          </div>
-        </div>
-        <span style={{ background: tag.bg, color: tag.color, fontSize: 12, fontWeight: 600, padding: "5px 11px", borderRadius: 20, flexShrink: 0 }}>
-          {tag.label}
-        </span>
+        {post.hidden_anonymous ? (
+          <>
+            <div
+              style={{
+                width: 44,
+                height: 44,
+                borderRadius: "50%",
+                background: "linear-gradient(135deg, #2A1A4D 0%, #C49BFF 100%)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                color: "#fff",
+                fontFamily: "Anton, sans-serif",
+                fontSize: 18
+              }}
+            >
+              ?
+            </div>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ fontWeight: 700, fontSize: 15, color: "#C49BFF" }}>Butico Anônimo</div>
+              <div style={{ color: "var(--text-muted)", fontSize: 12.5 }}>
+                identidade revelada se der match · {timeAgo(post.created_at)}
+              </div>
+            </div>
+          </>
+        ) : (
+          <>
+            <Link href={`/perfil/${post.author.username}`}>
+              <Avatar src={post.author.avatar_url} seed={post.author.username} initial={post.author.display_name} />
+            </Link>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <Link href={`/perfil/${post.author.username}`} style={{ textDecoration: "none", color: "inherit" }}>
+                <div style={{ fontWeight: 700, fontSize: 15, display: "flex", alignItems: "center", gap: 6 }}>
+                  {post.author.display_name}
+                  {post.is_anonymous && (
+                    <span style={{ fontSize: 10.5, color: "#C49BFF", background: "rgba(196,155,255,0.15)", padding: "1px 6px", borderRadius: 999, fontWeight: 700 }}>
+                      anônimo revelado
+                    </span>
+                  )}
+                </div>
+              </Link>
+              <div style={{ display: "flex", alignItems: "center", gap: 4, color: "var(--text-muted)", fontSize: 12.5 }}>
+                <MapPin size={12} /> {post.author.city || "—"} · {timeAgo(post.created_at)}
+                {post.edited_at && <span style={{ fontStyle: "italic", marginLeft: 4 }}>· editado</span>}
+              </div>
+            </div>
+          </>
+        )}
+        {!post.hidden_anonymous && (
+          <span style={{ background: tag.bg, color: tag.color, fontSize: 12, fontWeight: 600, padding: "5px 11px", borderRadius: 20, flexShrink: 0 }}>
+            {tag.label}
+          </span>
+        )}
         {meId && (
           <div ref={menuRef} style={{ position: "relative" }}>
             <button
               onClick={() => setMenuOpen((o) => !o)}
               aria-label="opções"
-              style={{ background: "none", border: "none", color: "#9A9AA0", cursor: "pointer", padding: 4 }}
+              style={{ background: "none", border: "none", color: "var(--text-muted)", cursor: "pointer", padding: 4 }}
             >
               <MoreHorizontal size={18} />
             </button>
@@ -111,7 +149,7 @@ export function PostCard({ post, meId }: { post: FeedPost; meId: string | null }
                   position: "absolute",
                   top: "100%",
                   right: 0,
-                  background: "#1E1C22",
+                  background: "var(--surface-up)",
                   border: "1px solid rgba(255,255,255,0.1)",
                   borderRadius: 10,
                   padding: 4,
@@ -123,7 +161,7 @@ export function PostCard({ post, meId }: { post: FeedPost; meId: string | null }
                 {canEdit && (
                   <button
                     onClick={() => { setMenuOpen(false); setEditOpen(true); }}
-                    style={menuItem("#F5F5F7")}
+                    style={menuItem("var(--text)")}
                   >
                     <Pencil size={14} /> Editar
                   </button>
@@ -160,7 +198,7 @@ export function PostCard({ post, meId }: { post: FeedPost; meId: string | null }
         <FireButton postId={post.id} initialFires={post.fires} initialLit={post.liked_by_me} meId={meId} />
         <button
           onClick={() => setOpenComments(true)}
-          style={{ background: "none", border: "none", cursor: "pointer", display: "flex", alignItems: "center", gap: 7, color: "#9A9AA0", padding: 0 }}
+          style={{ background: "none", border: "none", cursor: "pointer", display: "flex", alignItems: "center", gap: 7, color: "var(--text-muted)", padding: 0 }}
         >
           <MessageCircle size={24} />
           <span style={{ fontWeight: 600, fontSize: 15 }}>{post.comments_count}</span>
@@ -169,7 +207,7 @@ export function PostCard({ post, meId }: { post: FeedPost; meId: string | null }
           <button
             onClick={() => setRepostOpen(true)}
             title="Jogar mais fogo (repostar)"
-            style={{ background: "none", border: "none", cursor: "pointer", display: "flex", alignItems: "center", gap: 6, color: "#9A9AA0", padding: 0 }}
+            style={{ background: "none", border: "none", cursor: "pointer", display: "flex", alignItems: "center", gap: 6, color: "var(--text-muted)", padding: 0 }}
           >
             <Repeat size={22} />
           </button>
@@ -188,8 +226,8 @@ export function PostCard({ post, meId }: { post: FeedPost; meId: string | null }
 
       {isRepost && post.original?.caption && (
         <div style={{ padding: "8px 18px 0" }}>
-          <div style={{ borderLeft: "3px solid #FF1B6B", paddingLeft: 10, fontSize: 13, color: "#9A9AA0" }}>
-            <span style={{ fontWeight: 700, color: "#F5F5F7" }}>{post.original.author?.display_name?.split(" ")[0]}{" "}</span>
+          <div style={{ borderLeft: "3px solid #FF1B6B", paddingLeft: 10, fontSize: 13, color: "var(--text-muted)" }}>
+            <span style={{ fontWeight: 700, color: "var(--text)" }}>{post.original.author?.display_name?.split(" ")[0]}{" "}</span>
             {post.original.caption}
           </div>
         </div>
@@ -198,7 +236,7 @@ export function PostCard({ post, meId }: { post: FeedPost; meId: string | null }
       {post.comments_count > 0 && (
         <button
           onClick={() => setOpenComments(true)}
-          style={{ background: "none", border: "none", padding: "8px 18px 0", color: "#9A9AA0", fontSize: 13.5, cursor: "pointer", display: "block" }}
+          style={{ background: "none", border: "none", padding: "8px 18px 0", color: "var(--text-muted)", fontSize: 13.5, cursor: "pointer", display: "block" }}
         >
           Ver todos os {post.comments_count} comentários
         </button>

@@ -209,7 +209,7 @@ export function ChatThread({
             width: 36,
             height: 36,
             borderRadius: "50%",
-            color: "#F5F5F7",
+            color: "var(--text)",
             textDecoration: "none"
           }}
         >
@@ -222,7 +222,7 @@ export function ChatThread({
           <Avatar src={other.avatar_url} seed={other.username} initial={other.display_name} size={36} />
           <div style={{ minWidth: 0 }}>
             <div style={{ fontWeight: 700, fontSize: 14 }}>{other.display_name}</div>
-            <div style={{ color: "#9A9AA0", fontSize: 12 }}>@{other.username}{other.city ? ` · ${other.city}` : ""}</div>
+            <div style={{ color: "var(--text-muted)", fontSize: 12 }}>@{other.username}{other.city ? ` · ${other.city}` : ""}</div>
           </div>
         </Link>
       </div>
@@ -238,7 +238,7 @@ export function ChatThread({
         }}
       >
         {messages.length === 0 && (
-          <div style={{ textAlign: "center", color: "#9A9AA0", padding: 40 }}>
+          <div style={{ textAlign: "center", color: "var(--text-muted)", padding: 40 }}>
             Vocês deram fogo um no outro 🔥<br />
             Manda a primeira mensagem!
           </div>
@@ -287,8 +287,8 @@ export function ChatThread({
                 >
                   <div
                     style={{
-                      background: mine ? "linear-gradient(135deg, #FF1B6B 0%, #FF6A3D 100%)" : "#1E1C22",
-                      color: mine ? "#fff" : "#F5F5F7",
+                      background: mine ? "linear-gradient(135deg, #FF1B6B 0%, #FF6A3D 100%)" : "var(--surface-up)",
+                      color: mine ? "#fff" : "var(--text)",
                       padding: "9px 13px",
                       borderRadius: 16,
                       borderBottomRightRadius: mine ? 4 : 16,
@@ -311,13 +311,13 @@ export function ChatThread({
                     aria-label="reagir"
                     style={{
                       opacity: 0,
-                      background: "rgba(255,255,255,0.05)",
+                      background: "var(--border-soft)",
                       border: "1px solid rgba(255,255,255,0.1)",
                       borderRadius: "50%",
                       width: 28,
                       height: 28,
                       cursor: "pointer",
-                      color: "#9A9AA0",
+                      color: "var(--text-muted)",
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
@@ -341,7 +341,7 @@ export function ChatThread({
                       display: "flex",
                       gap: 4,
                       padding: 6,
-                      background: "#1E1C22",
+                      background: "var(--surface-up)",
                       border: "1px solid rgba(255,255,255,0.1)",
                       borderRadius: 999,
                       boxShadow: "0 6px 18px rgba(0,0,0,0.5)",
@@ -379,11 +379,11 @@ export function ChatThread({
                         key={emoji}
                         onClick={() => toggleReaction(m.id, emoji)}
                         style={{
-                          background: myReaction === emoji ? "rgba(255,27,107,0.18)" : "rgba(255,255,255,0.05)",
+                          background: myReaction === emoji ? "rgba(255,27,107,0.18)" : "var(--border-soft)",
                           border: myReaction === emoji ? "1px solid #FF1B6B" : "1px solid rgba(255,255,255,0.08)",
                           borderRadius: 999,
                           padding: "1px 7px",
-                          color: "#F5F5F7",
+                          color: "var(--text)",
                           fontSize: 12,
                           cursor: "pointer",
                           display: "inline-flex",
@@ -392,7 +392,7 @@ export function ChatThread({
                         }}
                       >
                         <span style={{ fontSize: 12 }}>{emoji}</span>
-                        {count > 1 && <span style={{ color: "#9A9AA0", fontSize: 11 }}>{count}</span>}
+                        {count > 1 && <span style={{ color: "var(--text-muted)", fontSize: 11 }}>{count}</span>}
                       </button>
                     ))}
                   </div>
@@ -414,7 +414,7 @@ export function ChatThread({
           gap: 8,
           padding: "12px 14px",
           borderTop: "1px solid rgba(255,255,255,0.08)",
-          background: "#0D0D0F"
+          background: "var(--bg)"
         }}
       >
         <input
@@ -425,11 +425,11 @@ export function ChatThread({
           maxLength={2000}
           style={{
             flex: 1,
-            background: "#1E1C22",
+            background: "var(--surface-up)",
             border: "1px solid rgba(255,255,255,0.08)",
             borderRadius: 24,
             padding: "11px 16px",
-            color: "#F5F5F7",
+            color: "var(--text)",
             fontSize: 14,
             outline: "none"
           }}

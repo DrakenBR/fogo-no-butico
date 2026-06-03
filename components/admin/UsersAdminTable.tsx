@@ -91,11 +91,11 @@ export function UsersAdminTable({ meId }: { meId: string }) {
           onChange={(e) => setQ(e.target.value)}
           placeholder="filtrar..."
           style={{
-            background: "#161519",
+            background: "var(--surface)",
             border: "1px solid rgba(255,255,255,0.08)",
             borderRadius: 10,
             padding: "8px 12px",
-            color: "#F5F5F7",
+            color: "var(--text)",
             outline: "none",
             fontSize: 13,
             width: 240
@@ -103,14 +103,14 @@ export function UsersAdminTable({ meId }: { meId: string }) {
         />
       </div>
 
-      {loading && <div style={{ color: "#9A9AA0", padding: 20 }}>Carregando...</div>}
+      {loading && <div style={{ color: "var(--text-muted)", padding: 20 }}>Carregando...</div>}
       {err && <div style={{ color: "#FF6A9E", padding: 12 }}>{err}</div>}
 
       {!loading && !err && (
         <div style={{ overflowX: "auto", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 14 }}>
           <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13.5, minWidth: 760 }}>
             <thead>
-              <tr style={{ background: "#1E1C22", color: "#9A9AA0", textAlign: "left" }}>
+              <tr style={{ background: "var(--surface-up)", color: "var(--text-muted)", textAlign: "left" }}>
                 <Th>User</Th>
                 <Th>Email</Th>
                 <Th>Cidade</Th>
@@ -136,18 +136,18 @@ export function UsersAdminTable({ meId }: { meId: string }) {
                           {r.display_name}
                           {r.is_admin && <ShieldCheck size={14} color="#FFB13D" />}
                         </div>
-                        <div style={{ color: "#9A9AA0", fontSize: 12 }}>@{r.username}</div>
+                        <div style={{ color: "var(--text-muted)", fontSize: 12 }}>@{r.username}</div>
                       </div>
                     </Link>
                   </Td>
                   <Td>
-                    <span style={{ color: "#9A9AA0" }}>{r.email}</span>
+                    <span style={{ color: "var(--text-muted)" }}>{r.email}</span>
                   </Td>
                   <Td>{r.city || "—"}</Td>
                   <Td style={{ fontWeight: 700 }}>{r.posts_count}</Td>
                   <Td style={{ color: "#FF1B6B", fontWeight: 700 }}>{r.fires_count}</Td>
-                  <Td style={{ color: "#9A9AA0" }}>{timeAgo(r.created_at)}</Td>
-                  <Td style={{ color: "#9A9AA0" }}>{r.last_sign_in_at ? timeAgo(r.last_sign_in_at) : "—"}</Td>
+                  <Td style={{ color: "var(--text-muted)" }}>{timeAgo(r.created_at)}</Td>
+                  <Td style={{ color: "var(--text-muted)" }}>{r.last_sign_in_at ? timeAgo(r.last_sign_in_at) : "—"}</Td>
                   <Td>
                     <div style={{ display: "flex", gap: 6 }}>
                       <button
@@ -159,7 +159,7 @@ export function UsersAdminTable({ meId }: { meId: string }) {
                           border: "1px solid rgba(255,255,255,0.1)",
                           borderRadius: 8,
                           padding: "5px 8px",
-                          color: r.is_admin ? "#FFB13D" : "#9A9AA0",
+                          color: r.is_admin ? "#FFB13D" : "var(--text-muted)",
                           cursor: r.id === meId && r.is_admin ? "not-allowed" : "pointer",
                           display: "flex",
                           alignItems: "center"
@@ -176,7 +176,7 @@ export function UsersAdminTable({ meId }: { meId: string }) {
                           border: "1px solid rgba(255,255,255,0.1)",
                           borderRadius: 8,
                           padding: "5px 8px",
-                          color: "#9A9AA0",
+                          color: "var(--text-muted)",
                           textDecoration: "none",
                           display: "flex",
                           alignItems: "center"
@@ -208,7 +208,7 @@ export function UsersAdminTable({ meId }: { meId: string }) {
               ))}
               {filtered.length === 0 && (
                 <tr>
-                  <td colSpan={8} style={{ padding: 24, textAlign: "center", color: "#9A9AA0" }}>
+                  <td colSpan={8} style={{ padding: 24, textAlign: "center", color: "var(--text-muted)" }}>
                     Nenhum user pra esse filtro
                   </td>
                 </tr>

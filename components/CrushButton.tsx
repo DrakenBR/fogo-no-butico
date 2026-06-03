@@ -94,8 +94,8 @@ export function CrushButton({
             padding: "11px 16px",
             borderRadius: 12,
             border: lit ? "1px solid #FF1B6B" : "1px solid rgba(255,255,255,0.1)",
-            background: lit ? "rgba(255,27,107,0.18)" : "#161519",
-            color: lit ? "#FF1B6B" : "#F5F5F7",
+            background: lit ? "rgba(255,27,107,0.18)" : "var(--surface)",
+            color: lit ? "#FF1B6B" : "var(--text)",
             fontWeight: 700,
             fontSize: 14,
             cursor: pending ? "wait" : "pointer"

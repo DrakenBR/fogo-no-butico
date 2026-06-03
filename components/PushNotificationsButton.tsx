@@ -105,9 +105,9 @@ export function PushNotificationsButton({ userId }: { userId: string }) {
         style={{
           padding: "11px 14px",
           borderRadius: 12,
-          background: subscribed ? "rgba(255,27,107,0.12)" : "#161519",
+          background: subscribed ? "rgba(255,27,107,0.12)" : "var(--surface)",
           border: subscribed ? "1px solid #FF1B6B" : "1px solid rgba(255,255,255,0.08)",
-          color: subscribed ? "#FF1B6B" : "#F5F5F7",
+          color: subscribed ? "#FF1B6B" : "var(--text)",
           cursor: pending ? "wait" : "pointer",
           display: "flex",
           alignItems: "center",

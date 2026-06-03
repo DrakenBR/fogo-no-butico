@@ -30,7 +30,7 @@ export default async function AdminPage() {
             ADMIN <span className="fire-text">CONTROL</span>
           </h1>
         </div>
-        <p style={{ color: "#9A9AA0", marginTop: 0, marginBottom: 26 }}>
+        <p style={{ color: "var(--text-muted)", marginTop: 0, marginBottom: 26 }}>
           KPIs, gestão de usuários e moderação de posts
         </p>
 

@@ -62,13 +62,13 @@ export function CommentFireButton({ commentId, initialFires, initialLit, meId }:
         display: "inline-flex",
         alignItems: "center",
         gap: 4,
-        color: lit ? "#FF1B6B" : "#9A9AA0",
+        color: lit ? "#FF1B6B" : "var(--text-muted)",
         padding: 2,
         fontSize: 12,
         fontWeight: 600
       }}
     >
-      <Flame size={14} color={lit ? "#FF1B6B" : "#9A9AA0"} fill={lit ? "#FF1B6B" : "none"} className={bump ? "animate-pulse-fire" : ""} />
+      <Flame size={14} color={lit ? "#FF1B6B" : "var(--text-muted)"} fill={lit ? "#FF1B6B" : "none"} className={bump ? "animate-pulse-fire" : ""} />
       {fires > 0 && <span>{fires}</span>}
     </button>
   );

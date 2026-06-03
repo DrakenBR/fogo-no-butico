@@ -106,15 +106,15 @@ export function ProfileHighlights({
             >
               <Bookmark
                 size={12}
-                color="#0D0D0F"
+                color="var(--bg)"
                 fill="#FFB13D"
                 style={{ position: "absolute", bottom: -2, right: -2, background: "#FFB13D", borderRadius: "50%", padding: 2, border: "2px solid #0D0D0F" }}
               />
             </div>
-            <span style={{ fontSize: 12, color: "#F5F5F7", maxWidth: 72, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", fontWeight: 600 }}>
+            <span style={{ fontSize: 12, color: "var(--text)", maxWidth: 72, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", fontWeight: 600 }}>
               {c.highlight_collection}
             </span>
-            <span style={{ fontSize: 10.5, color: "#9A9AA0" }}>{c.total}</span>
+            <span style={{ fontSize: 10.5, color: "var(--text-muted)" }}>{c.total}</span>
           </button>
         ))}
       </div>

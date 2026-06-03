@@ -1,6 +1,6 @@
 "use client";
 
-import { Flame, Search, Home, Trophy, User, PlusCircle, ShieldCheck, Bell, MessageCircle, Heart } from "lucide-react";
+import { Flame, Search, Home, Trophy, User, PlusCircle, ShieldCheck, Bell, MessageCircle, Heart, Sparkles, HelpCircle } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { SidebarUserMenu } from "./SidebarUserMenu";
@@ -11,6 +11,8 @@ type BadgeKind = "notif" | "chat" | "crush" | null;
 const items: { href: string; icon: typeof Home; label: string; badge?: BadgeKind }[] = [
   { href: "/", icon: Home, label: "Feed" },
   { href: "/buscar", icon: Search, label: "Buscar" },
+  { href: "/surpresa", icon: Sparkles, label: "Roleta" },
+  { href: "/trivia", icon: HelpCircle, label: "Trivia" },
   { href: "/chat", icon: MessageCircle, label: "Chat", badge: "chat" },
   { href: "/curtidas", icon: Heart, label: "Curtidas", badge: "crush" },
   { href: "/notificacoes", icon: Bell, label: "Notificações", badge: "notif" },
@@ -52,9 +54,9 @@ export function Sidebar({
         </div>
       </Link>
 
-      <Link href="/buscar" style={{ display: "flex", alignItems: "center", gap: 8, background: "#161519", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 12, padding: "10px 12px", marginBottom: 14, textDecoration: "none" }}>
-        <Search size={17} color="#9A9AA0" />
-        <span style={{ color: "#9A9AA0", fontSize: 14 }}>Buscar butico...</span>
+      <Link href="/buscar" style={{ display: "flex", alignItems: "center", gap: 8, background: "var(--surface)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 12, padding: "10px 12px", marginBottom: 14, textDecoration: "none" }}>
+        <Search size={17} color="var(--text-muted)" />
+        <span style={{ color: "var(--text-muted)", fontSize: 14 }}>Buscar butico...</span>
       </Link>
 
       {items.map((n) => {
@@ -76,7 +78,7 @@ export function Sidebar({
               padding: "12px 14px",
               borderRadius: 12,
               background: active ? "rgba(255,27,107,0.12)" : "transparent",
-              color: active ? "#FF1B6B" : "#F5F5F7",
+              color: active ? "#FF1B6B" : "var(--text)",
               fontSize: 16,
               fontWeight: 600,
               textDecoration: "none",

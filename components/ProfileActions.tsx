@@ -93,9 +93,9 @@ export function ProfileActions({
             flex: 1,
             padding: "11px 16px",
             borderRadius: 12,
-            background: "rgba(255,255,255,0.06)",
+            background: "var(--border-soft-3)",
             border: "1px solid rgba(255,255,255,0.1)",
-            color: "#9A9AA0",
+            color: "var(--text-muted)",
             fontWeight: 700,
             cursor: "pointer",
             fontSize: 14,
@@ -116,9 +116,9 @@ export function ProfileActions({
           style={{
             padding: "11px 12px",
             borderRadius: 12,
-            background: "#161519",
+            background: "var(--surface)",
             border: "1px solid rgba(255,255,255,0.1)",
-            color: "#9A9AA0",
+            color: "var(--text-muted)",
             cursor: "pointer",
             display: "flex",
             alignItems: "center",
@@ -134,7 +134,7 @@ export function ProfileActions({
               position: "absolute",
               top: "calc(100% + 6px)",
               right: 0,
-              background: "#1E1C22",
+              background: "var(--surface-up)",
               border: "1px solid rgba(255,255,255,0.10)",
               borderRadius: 12,
               padding: 6,
@@ -152,7 +152,7 @@ export function ProfileActions({
             >
               <Flag size={16} /> Denunciar
             </button>
-            <button onClick={toggleBlock} style={{ ...menuItem, color: blocked ? "#9A9AA0" : "#FF6A9E" }}>
+            <button onClick={toggleBlock} style={{ ...menuItem, color: blocked ? "var(--text-muted)" : "#FF6A9E" }}>
               <Shield size={16} /> {blocked ? "Desbloquear" : "Bloquear"}
             </button>
           </div>
@@ -179,7 +179,7 @@ const menuItem: React.CSSProperties = {
   borderRadius: 8,
   background: "transparent",
   border: "none",
-  color: "#F5F5F7",
+  color: "var(--text)",
   fontSize: 14,
   fontWeight: 600,
   cursor: "pointer",

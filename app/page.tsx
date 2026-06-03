@@ -46,9 +46,9 @@ async function getRanking() {
 
 function EmptyFeed() {
   return (
-    <div style={{ padding: "60px 24px", textAlign: "center", color: "#9A9AA0" }}>
+    <div style={{ padding: "60px 24px", textAlign: "center", color: "var(--text-muted)" }}>
       <Flame size={56} color="#FF1B6B" style={{ margin: "0 auto 16px" }} />
-      <div className="display" style={{ fontSize: 22, color: "#F5F5F7" }}>
+      <div className="display" style={{ fontSize: 22, color: "var(--text)" }}>
         SEM POSTS AINDA
       </div>
       <p style={{ marginTop: 8, fontSize: 14 }}>

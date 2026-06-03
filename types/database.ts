@@ -94,6 +94,7 @@ export interface Post {
   media_types: MediaType[] | null;
   original_post_id: string | null;
   poll: Poll | null;
+  is_anonymous: boolean;
 }
 
 export interface PollVote {
@@ -281,6 +282,8 @@ export interface FeedPost extends Post {
   comments_count: number;
   liked_by_me: boolean;
   saved_by_me: boolean;
+  /** Quando true, é anônimo e o usuário NÃO matched ainda → renderiza mascarado */
+  hidden_anonymous: boolean;
   /** Quando esse post é um repost, info do post original com o autor */
   original?: {
     id: string;

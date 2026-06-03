@@ -9,6 +9,8 @@ import { logout } from "@/app/login/actions";
 import { LinkButtons } from "@/components/LinkButtons";
 import { ProfileActions } from "@/components/ProfileActions";
 import { ProfileHighlights } from "@/components/ProfileHighlights";
+import { BadgesRow } from "@/components/BadgesRow";
+import { BadgeRefresher } from "@/components/BadgeRefresher";
 import type { ProfileLink } from "@/types/database";
 
 export const dynamic = "force-dynamic";
@@ -46,6 +48,12 @@ export default async function PerfilPage({ params }: { params: { username: strin
     totalFires = count ?? 0;
   }
 
+  const { data: badgesData } = await supabase
+    .from("user_badges")
+    .select("badge_id")
+    .eq("user_id", profile.id);
+  const badges = (badgesData ?? []).map((b: any) => b.badge_id as string);
+
   const isMe = user?.id === profile.id;
   const tag = lookingStyle[profile.looking_for as keyof typeof lookingStyle];
 
@@ -61,20 +69,22 @@ export default async function PerfilPage({ params }: { params: { username: strin
                 <span style={{ background: "#FF1B6B", color: "#fff", padding: "2px 8px", borderRadius: 999, fontSize: 11, fontWeight: 700 }}>VERIFICADO</span>
               )}
             </div>
-            <div style={{ color: "#9A9AA0", fontSize: 14 }}>@{profile.username}</div>
+            <div style={{ color: "var(--text-muted)", fontSize: 14 }}>@{profile.username}</div>
             {profile.city && (
-              <div style={{ display: "flex", alignItems: "center", gap: 4, color: "#9A9AA0", fontSize: 13, marginTop: 4 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 4, color: "var(--text-muted)", fontSize: 13, marginTop: 4 }}>
                 <MapPin size={13} /> {profile.city}{profile.age ? ` · ${profile.age} anos` : ""}
               </div>
             )}
           </div>
         </div>
 
-        <div style={{ padding: "0 22px 14px", display: "flex", gap: 8, flexWrap: "wrap" }}>
+        <div style={{ padding: "0 22px 14px", display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
           <span style={{ background: tag.bg, color: tag.color, fontSize: 13, fontWeight: 600, padding: "5px 12px", borderRadius: 999 }}>
             {tag.label}
           </span>
+          <BadgesRow badgeIds={badges} />
         </div>
+        {isMe && <BadgeRefresher />}
 
         {profile.bio && (
           <p style={{ padding: "0 22px", fontSize: 15, lineHeight: 1.5, margin: "0 0 16px" }}>{profile.bio}</p>
@@ -99,9 +109,9 @@ export default async function PerfilPage({ params }: { params: { username: strin
                 flex: 1,
                 padding: "10px 14px",
                 borderRadius: 12,
-                background: "#161519",
+                background: "var(--surface)",
                 border: "1px solid rgba(255,255,255,0.08)",
-                color: "#F5F5F7",
+                color: "var(--text)",
                 textAlign: "center",
                 fontWeight: 600,
                 textDecoration: "none",
@@ -122,7 +132,7 @@ export default async function PerfilPage({ params }: { params: { username: strin
                   borderRadius: 12,
                   background: "transparent",
                   border: "1px solid rgba(255,255,255,0.08)",
-                  color: "#9A9AA0",
+                  color: "var(--text-muted)",
                   fontWeight: 600,
                   cursor: "pointer"
                 }}
@@ -159,7 +169,7 @@ export default async function PerfilPage({ params }: { params: { username: strin
         </div>
 
         {(!posts || posts.length === 0) ? (
-          <div style={{ padding: "40px 24px", textAlign: "center", color: "#9A9AA0" }}>Sem posts ainda</div>
+          <div style={{ padding: "40px 24px", textAlign: "center", color: "var(--text-muted)" }}>Sem posts ainda</div>
         ) : (
           <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 3, marginTop: 14, padding: "0 3px" }}>
             {posts.map((p) => (
@@ -196,7 +206,7 @@ function Stat({ label, value, icon }: { label: string; value: number; icon?: Rea
       <div style={{ fontFamily: "Anton, sans-serif", fontSize: 22, display: "flex", alignItems: "center", gap: 5 }}>
         {icon} {value}
       </div>
-      <div style={{ color: "#9A9AA0", fontSize: 13 }}>{label}</div>
+      <div style={{ color: "var(--text-muted)", fontSize: 13 }}>{label}</div>
     </div>
   );
 }

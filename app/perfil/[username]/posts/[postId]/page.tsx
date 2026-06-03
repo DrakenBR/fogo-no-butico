@@ -53,7 +53,7 @@ export default async function PostDetailPage({
             width: 36,
             height: 36,
             borderRadius: "50%",
-            color: "#F5F5F7",
+            color: "var(--text)",
             textDecoration: "none"
           }}
         >
@@ -68,7 +68,7 @@ export default async function PostDetailPage({
             <div style={{ fontWeight: 700, fontSize: 14, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
               {profile.display_name}
             </div>
-            <div style={{ color: "#9A9AA0", fontSize: 12 }}>@{profile.username} · {posts.length} {posts.length === 1 ? "post" : "posts"}</div>
+            <div style={{ color: "var(--text-muted)", fontSize: 12 }}>@{profile.username} · {posts.length} {posts.length === 1 ? "post" : "posts"}</div>
           </div>
         </Link>
       </div>

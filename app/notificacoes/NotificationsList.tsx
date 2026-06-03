@@ -9,8 +9,8 @@ import type { NotificationRow, NotificationKind } from "@/types/database";
 export function NotificationsList({ rows }: { rows: NotificationRow[] }) {
   if (rows.length === 0) {
     return (
-      <div style={{ padding: "60px 20px", textAlign: "center", color: "#9A9AA0" }}>
-        <Bell size={42} color="#9A9AA0" style={{ margin: "0 auto 12px", opacity: 0.5 }} />
+      <div style={{ padding: "60px 20px", textAlign: "center", color: "var(--text-muted)" }}>
+        <Bell size={42} color="var(--text-muted)" style={{ margin: "0 auto 12px", opacity: 0.5 }} />
         <div style={{ fontSize: 15 }}>Nenhuma notificação ainda</div>
         <div style={{ fontSize: 13, marginTop: 4 }}>Bota fogo nos posts da galera pra começar a aparecer aqui</div>
       </div>
@@ -46,7 +46,7 @@ export function NotificationsList({ rows }: { rows: NotificationRow[] }) {
                   position: "absolute",
                   bottom: -2,
                   right: -2,
-                  background: "#0D0D0F",
+                  background: "var(--bg)",
                   border: "2px solid #0D0D0F",
                   borderRadius: "50%",
                   width: 22,
@@ -63,12 +63,12 @@ export function NotificationsList({ rows }: { rows: NotificationRow[] }) {
             <div style={{ flex: 1, minWidth: 0 }}>
               <div style={{ fontSize: 14, lineHeight: 1.4 }}>
                 <span style={{ fontWeight: 700 }}>{actor.display_name}</span>{" "}
-                <span style={{ color: "#9A9AA0" }}>{text}</span>
+                <span style={{ color: "var(--text-muted)" }}>{text}</span>
               </div>
               {n.comment?.body && (
                 <div
                   style={{
-                    color: "#9A9AA0",
+                    color: "var(--text-muted)",
                     fontSize: 12.5,
                     marginTop: 2,
                     overflow: "hidden",
@@ -79,7 +79,7 @@ export function NotificationsList({ rows }: { rows: NotificationRow[] }) {
                   &quot;{n.comment.body}&quot;
                 </div>
               )}
-              <div style={{ color: "#9A9AA0", fontSize: 11.5, marginTop: 2 }}>{timeAgo(n.created_at)}</div>
+              <div style={{ color: "var(--text-muted)", fontSize: 11.5, marginTop: 2 }}>{timeAgo(n.created_at)}</div>
             </div>
 
             {n.post?.media_url && (

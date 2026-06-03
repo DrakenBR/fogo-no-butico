@@ -76,11 +76,11 @@ export function ReportsAdminTable() {
         </h2>
       </div>
 
-      {loading && <div style={{ color: "#9A9AA0", padding: 20 }}>Carregando...</div>}
+      {loading && <div style={{ color: "var(--text-muted)", padding: 20 }}>Carregando...</div>}
       {err && <div style={{ color: "#FF6A9E", padding: 12 }}>{err}</div>}
 
       {!loading && !err && pending.length === 0 && resolved.length === 0 && (
-        <div style={{ color: "#9A9AA0", padding: 20 }}>Nenhuma denúncia ainda 🔥</div>
+        <div style={{ color: "var(--text-muted)", padding: 20 }}>Nenhuma denúncia ainda 🔥</div>
       )}
 
       {!loading && !err && (
@@ -91,7 +91,7 @@ export function ReportsAdminTable() {
 
           {resolved.length > 0 && (
             <>
-              <div style={{ color: "#9A9AA0", fontSize: 12, fontWeight: 700, letterSpacing: 0.5, padding: "16px 0 4px", textTransform: "uppercase" }}>
+              <div style={{ color: "var(--text-muted)", fontSize: 12, fontWeight: 700, letterSpacing: 0.5, padding: "16px 0 4px", textTransform: "uppercase" }}>
                 Resolvidos ({resolved.length})
               </div>
               {resolved.slice(0, 20).map((r) => (
@@ -126,7 +126,7 @@ function ReportCard({
   return (
     <div
       style={{
-        background: muted ? "transparent" : "#161519",
+        background: muted ? "transparent" : "var(--surface)",
         border: muted ? "1px solid rgba(255,255,255,0.04)" : "1px solid rgba(255,27,107,0.18)",
         borderRadius: 12,
         padding: 14,
@@ -136,9 +136,9 @@ function ReportCard({
       <div style={{ display: "flex", gap: 12, alignItems: "flex-start" }}>
         <Avatar src={r.reporter_avatar_url} seed={r.reporter_username} initial={r.reporter_display_name} size={36} />
         <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ fontSize: 13.5, color: "#F5F5F7" }}>
+          <div style={{ fontSize: 13.5, color: "var(--text)" }}>
             <span style={{ fontWeight: 700 }}>@{r.reporter_username}</span>
-            <span style={{ color: "#9A9AA0" }}> denunciou </span>
+            <span style={{ color: "var(--text-muted)" }}> denunciou </span>
             <span style={{ fontWeight: 600 }}>
               {r.kind === "user" ? "usuário" : r.kind === "post" ? "post" : "comentário"}{" "}
               {r.context_username ? `de @${r.context_username}` : ""}
@@ -152,11 +152,11 @@ function ReportCard({
           {r.snippet && (
             <div
               style={{
-                color: "#9A9AA0",
+                color: "var(--text-muted)",
                 fontSize: 12.5,
                 marginTop: 6,
                 padding: "6px 10px",
-                background: "rgba(255,255,255,0.03)",
+                background: "var(--tint-on-surface)",
                 borderRadius: 8,
                 overflow: "hidden",
                 display: "-webkit-box",
@@ -167,7 +167,7 @@ function ReportCard({
               &quot;{r.snippet}&quot;
             </div>
           )}
-          <div style={{ color: "#9A9AA0", fontSize: 11.5, marginTop: 6 }}>{timeAgo(r.created_at)}{r.resolved_at ? ` · resolvido ${timeAgo(r.resolved_at)}` : ""}</div>
+          <div style={{ color: "var(--text-muted)", fontSize: 11.5, marginTop: 6 }}>{timeAgo(r.created_at)}{r.resolved_at ? ` · resolvido ${timeAgo(r.resolved_at)}` : ""}</div>
         </div>
 
         {!muted && (
@@ -181,7 +181,7 @@ function ReportCard({
                 border: "1px solid rgba(255,255,255,0.1)",
                 borderRadius: 8,
                 padding: "6px 8px",
-                color: "#9A9AA0",
+                color: "var(--text-muted)",
                 textDecoration: "none",
                 display: "flex",
                 alignItems: "center"

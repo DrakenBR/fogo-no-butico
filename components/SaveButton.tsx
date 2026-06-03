@@ -39,7 +39,7 @@ export function SaveButton({ postId, initialSaved, meId }: Props) {
         background: "none",
         border: "none",
         cursor: meId ? "pointer" : "not-allowed",
-        color: saved ? "#FFB13D" : "#9A9AA0",
+        color: saved ? "#FFB13D" : "var(--text-muted)",
         padding: 0,
         marginLeft: "auto",
         display: "flex",

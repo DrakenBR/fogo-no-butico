@@ -63,7 +63,7 @@ export function MatchSplash({
       <h2 className="display fire-text" style={{ fontSize: 56, margin: "14px 0 4px", letterSpacing: 2 }}>
         DEU FOGO!
       </h2>
-      <p style={{ color: "#F5F5F7", fontSize: 17, opacity: 0.9, marginTop: 0, marginBottom: 28, textAlign: "center" }}>
+      <p style={{ color: "var(--text)", fontSize: 17, opacity: 0.9, marginTop: 0, marginBottom: 28, textAlign: "center" }}>
         Vocês dois se curtiram. <span style={{ color: "#FF1B6B", fontWeight: 700 }}>Bota fogo no chat 🔥</span>
       </p>
 
@@ -99,7 +99,7 @@ export function MatchSplash({
           style={{
             padding: 14,
             borderRadius: 14,
-            background: "rgba(255,255,255,0.08)",
+            background: "var(--border)",
             border: "1px solid rgba(255,255,255,0.12)",
             color: "#fff",
             cursor: "pointer",

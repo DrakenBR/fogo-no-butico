@@ -54,7 +54,7 @@ export function EditPostDialog({
         style={{
           width: "100%",
           maxWidth: 420,
-          background: "#161519",
+          background: "var(--surface)",
           border: "1px solid rgba(255,255,255,0.08)",
           borderRadius: 18,
           padding: 18
@@ -65,12 +65,12 @@ export function EditPostDialog({
             <Pencil size={16} color="#FF1B6B" />
             <span className="display" style={{ fontSize: 18 }}>EDITAR POST</span>
           </div>
-          <button onClick={onClose} style={{ background: "none", border: "none", color: "#F5F5F7", cursor: "pointer" }}>
+          <button onClick={onClose} style={{ background: "none", border: "none", color: "var(--text)", cursor: "pointer" }}>
             <X size={20} />
           </button>
         </div>
 
-        <p style={{ color: "#9A9AA0", fontSize: 12.5, margin: 0, marginBottom: 10 }}>
+        <p style={{ color: "var(--text-muted)", fontSize: 12.5, margin: 0, marginBottom: 10 }}>
           Você tem 5 minutos pra ajustar depois de publicar.
         </p>
 
@@ -82,11 +82,11 @@ export function EditPostDialog({
           maxLength={500}
           style={{
             width: "100%",
-            background: "#1E1C22",
+            background: "var(--surface-up)",
             border: "1px solid rgba(255,255,255,0.08)",
             borderRadius: 10,
             padding: 12,
-            color: "#F5F5F7",
+            color: "var(--text)",
             fontSize: 14,
             outline: "none",
             resize: "vertical"
@@ -98,7 +98,7 @@ export function EditPostDialog({
         <div style={{ display: "flex", gap: 8, marginTop: 14 }}>
           <button
             onClick={onClose}
-            style={{ flex: 1, padding: "11px 12px", borderRadius: 10, background: "transparent", border: "1px solid rgba(255,255,255,0.1)", color: "#9A9AA0", fontWeight: 700, cursor: "pointer" }}
+            style={{ flex: 1, padding: "11px 12px", borderRadius: 10, background: "transparent", border: "1px solid rgba(255,255,255,0.1)", color: "var(--text-muted)", fontWeight: 700, cursor: "pointer" }}
           >
             Cancelar
           </button>

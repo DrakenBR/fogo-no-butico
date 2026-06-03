@@ -11,7 +11,7 @@ export default function LoginPage({ searchParams }: { searchParams: { error?: st
           <h1 className="display" style={{ fontSize: 38, marginTop: 14, lineHeight: 1 }}>
             FOGO NO <span style={{ color: "#FF1B6B" }}>BUTICO</span>
           </h1>
-          <p style={{ color: "#9A9AA0", marginTop: 10 }}>Entra e bota fogo 🔥</p>
+          <p style={{ color: "var(--text-muted)", marginTop: 10 }}>Entra e bota fogo 🔥</p>
         </div>
 
         <form action={login} style={{ display: "flex", flexDirection: "column", gap: 12 }}>
@@ -38,7 +38,7 @@ export default function LoginPage({ searchParams }: { searchParams: { error?: st
           <button type="submit" className="fire-bg display" style={btnStyle}>ENTRAR</button>
         </form>
 
-        <div style={{ textAlign: "center", marginTop: 22, color: "#9A9AA0" }}>
+        <div style={{ textAlign: "center", marginTop: 22, color: "var(--text-muted)" }}>
           Sem conta?{" "}
           <Link href="/signup" style={{ color: "#FF1B6B", textDecoration: "none", fontWeight: 700 }}>
             cria uma
@@ -50,11 +50,11 @@ export default function LoginPage({ searchParams }: { searchParams: { error?: st
 }
 
 const inputStyle: React.CSSProperties = {
-  background: "#161519",
+  background: "var(--surface)",
   border: "1px solid rgba(255,255,255,0.08)",
   borderRadius: 12,
   padding: "14px 16px",
-  color: "#F5F5F7",
+  color: "var(--text)",
   fontSize: 15,
   outline: "none"
 };

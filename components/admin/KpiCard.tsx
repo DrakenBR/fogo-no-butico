@@ -12,7 +12,7 @@ export function KpiCard({ label, value, sub, icon: Icon, accent = "#FF1B6B" }: P
   return (
     <div
       style={{
-        background: "#161519",
+        background: "var(--surface)",
         border: "1px solid rgba(255,255,255,0.08)",
         borderRadius: 16,
         padding: 18,
@@ -23,12 +23,12 @@ export function KpiCard({ label, value, sub, icon: Icon, accent = "#FF1B6B" }: P
       }}
     >
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-        <span style={{ color: "#9A9AA0", fontSize: 12, fontWeight: 600, letterSpacing: 0.4, textTransform: "uppercase" }}>
+        <span style={{ color: "var(--text-muted)", fontSize: 12, fontWeight: 600, letterSpacing: 0.4, textTransform: "uppercase" }}>
           {label}
         </span>
         <Icon size={18} color={accent} />
       </div>
-      <div className="display" style={{ fontSize: 32, lineHeight: 1, color: "#F5F5F7" }}>
+      <div className="display" style={{ fontSize: 32, lineHeight: 1, color: "var(--text)" }}>
         {value}
       </div>
       {sub && <div style={{ color: accent, fontSize: 12, fontWeight: 600 }}>{sub}</div>}

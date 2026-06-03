@@ -80,18 +80,18 @@ export function BuscaUI() {
       </h1>
 
       <div style={{ position: "relative", marginBottom: 14 }}>
-        <Search size={18} color="#9A9AA0" style={{ position: "absolute", top: 14, left: 14 }} />
+        <Search size={18} color="var(--text-muted)" style={{ position: "absolute", top: 14, left: 14 }} />
         <input
           value={q}
           onChange={(e) => setQ(e.target.value)}
           placeholder="username, nome ou cidade"
           style={{
             width: "100%",
-            background: "#161519",
+            background: "var(--surface)",
             border: "1px solid rgba(255,255,255,0.08)",
             borderRadius: 14,
             padding: "13px 14px 13px 42px",
-            color: "#F5F5F7",
+            color: "var(--text)",
             fontSize: 15,
             outline: "none"
           }}
@@ -109,8 +109,8 @@ export function BuscaUI() {
                 padding: "8px 14px",
                 borderRadius: 999,
                 border: active ? "1px solid #FF1B6B" : "1px solid rgba(255,255,255,0.08)",
-                background: active ? "rgba(255,27,107,0.15)" : "#161519",
-                color: active ? "#FF1B6B" : "#F5F5F7",
+                background: active ? "rgba(255,27,107,0.15)" : "var(--surface)",
+                color: active ? "#FF1B6B" : "var(--text)",
                 fontSize: 13,
                 fontWeight: 600,
                 cursor: "pointer",
@@ -136,7 +136,7 @@ export function BuscaUI() {
       )}
 
       {hasLocation && (
-        <div style={{ background: "#161519", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 12, padding: 12, marginBottom: 18 }}>
+        <div style={{ background: "var(--surface)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 12, padding: 12, marginBottom: 18 }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
             <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 13.5, fontWeight: 600 }}>
               <MapPin size={15} color="#FF1B6B" />
@@ -145,7 +145,7 @@ export function BuscaUI() {
             {radius && (
               <button
                 onClick={() => setRadius(null)}
-                style={{ background: "transparent", border: "none", color: "#9A9AA0", fontSize: 12, cursor: "pointer", fontWeight: 600 }}
+                style={{ background: "transparent", border: "none", color: "var(--text-muted)", fontSize: 12, cursor: "pointer", fontWeight: 600 }}
               >
                 limpar
               </button>
@@ -162,8 +162,8 @@ export function BuscaUI() {
                     padding: "6px 12px",
                     borderRadius: 999,
                     border: active ? "1px solid #FF1B6B" : "1px solid rgba(255,255,255,0.06)",
-                    background: active ? "rgba(255,27,107,0.15)" : "#1E1C22",
-                    color: active ? "#FF1B6B" : "#9A9AA0",
+                    background: active ? "rgba(255,27,107,0.15)" : "var(--surface-up)",
+                    color: active ? "#FF1B6B" : "var(--text-muted)",
                     fontSize: 12,
                     fontWeight: 600,
                     cursor: "pointer"
@@ -177,9 +177,9 @@ export function BuscaUI() {
         </div>
       )}
 
-      {loading && <div style={{ color: "#9A9AA0", textAlign: "center", padding: 20 }}>Procurando...</div>}
+      {loading && <div style={{ color: "var(--text-muted)", textAlign: "center", padding: 20 }}>Procurando...</div>}
       {!loading && rows.length === 0 && (
-        <div style={{ color: "#9A9AA0", textAlign: "center", padding: 40 }}>Ninguém aqui pra esse filtro 🔥</div>
+        <div style={{ color: "var(--text-muted)", textAlign: "center", padding: 40 }}>Ninguém aqui pra esse filtro 🔥</div>
       )}
 
       <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
@@ -202,12 +202,12 @@ export function BuscaUI() {
               <Avatar src={p.avatar_url} seed={p.username} initial={p.display_name} size={48} />
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ fontWeight: 700, fontSize: 15 }}>{p.display_name}</div>
-                <div style={{ color: "#9A9AA0", fontSize: 13 }}>
+                <div style={{ color: "var(--text-muted)", fontSize: 13 }}>
                   @{p.username} {p.city ? `· ${p.city}` : ""}
                 </div>
               </div>
               {p.distance_km !== null && (
-                <div style={{ color: "#9A9AA0", fontSize: 12, display: "flex", alignItems: "center", gap: 3 }}>
+                <div style={{ color: "var(--text-muted)", fontSize: 12, display: "flex", alignItems: "center", gap: 3 }}>
                   <MapPin size={11} /> {p.distance_km < 1 ? "<1" : Math.round(p.distance_km)}km
                 </div>
               )}

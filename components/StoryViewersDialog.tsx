@@ -47,7 +47,7 @@ export function StoryViewersDialog({
           width: "100%",
           maxWidth: 500,
           maxHeight: "75vh",
-          background: "#161519",
+          background: "var(--surface)",
           borderTopLeftRadius: 22,
           borderTopRightRadius: 22,
           borderTop: "1px solid rgba(255,255,255,0.08)",
@@ -60,16 +60,16 @@ export function StoryViewersDialog({
             <Eye size={18} />
             <span className="display" style={{ fontSize: 18 }}>QUEM VIU ({viewers.length})</span>
           </div>
-          <button onClick={onClose} style={{ background: "none", border: "none", color: "#F5F5F7", cursor: "pointer" }}>
+          <button onClick={onClose} style={{ background: "none", border: "none", color: "var(--text)", cursor: "pointer" }}>
             <X size={20} />
           </button>
         </div>
 
         <div style={{ flex: 1, overflowY: "auto", padding: "10px 18px" }}>
-          {loading && <div style={{ color: "#9A9AA0", textAlign: "center", padding: 20 }}>Carregando...</div>}
+          {loading && <div style={{ color: "var(--text-muted)", textAlign: "center", padding: 20 }}>Carregando...</div>}
           {err && <div style={{ color: "#FF6A9E", padding: 12 }}>{err}</div>}
           {!loading && viewers.length === 0 && !err && (
-            <div style={{ color: "#9A9AA0", textAlign: "center", padding: 30 }}>Ninguém viu ainda 👀</div>
+            <div style={{ color: "var(--text-muted)", textAlign: "center", padding: 30 }}>Ninguém viu ainda 👀</div>
           )}
           {viewers.map((v) => (
             <a
@@ -80,9 +80,9 @@ export function StoryViewersDialog({
               <Avatar src={v.avatar_url} seed={v.username} initial={v.display_name} size={40} />
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ fontWeight: 700, fontSize: 14 }}>{v.display_name}</div>
-                <div style={{ color: "#9A9AA0", fontSize: 12.5 }}>@{v.username}</div>
+                <div style={{ color: "var(--text-muted)", fontSize: 12.5 }}>@{v.username}</div>
               </div>
-              <div style={{ color: "#9A9AA0", fontSize: 12 }}>{timeAgo(v.viewed_at)}</div>
+              <div style={{ color: "var(--text-muted)", fontSize: 12 }}>{timeAgo(v.viewed_at)}</div>
             </a>
           ))}
         </div>

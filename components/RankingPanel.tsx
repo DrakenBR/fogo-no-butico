@@ -13,7 +13,7 @@ export function RankingPanel({
   return (
     <div
       style={{
-        background: "#161519",
+        background: "var(--surface)",
         border: "1px solid rgba(255,255,255,0.08)",
         borderRadius: 18,
         display: "flex",
@@ -30,7 +30,7 @@ export function RankingPanel({
           <Trophy size={20} color="#FFB13D" />
           <span className="display" style={{ fontSize: 18 }}>MAIS QUENTE</span>
         </div>
-        <div style={{ color: "#9A9AA0", fontSize: 12.5 }}>da semana 🔥</div>
+        <div style={{ color: "var(--text-muted)", fontSize: 12.5 }}>da semana 🔥</div>
       </div>
 
       {/* LISTA (rola dentro do card) */}
@@ -43,7 +43,7 @@ export function RankingPanel({
         }}
       >
         {rows.length === 0 && (
-          <div style={{ color: "#9A9AA0", fontSize: 13, padding: "20px 0", textAlign: "center" }}>
+          <div style={{ color: "var(--text-muted)", fontSize: 13, padding: "20px 0", textAlign: "center" }}>
             Sem 🔥 essa semana ainda. Bota fogo!
           </div>
         )}
@@ -68,7 +68,7 @@ export function RankingPanel({
                 fontSize: 18,
                 width: 24,
                 textAlign: "center",
-                color: i === 0 ? "#FFD24D" : i === 1 ? "#C9C9D4" : i === 2 ? "#FF8A3D" : "#9A9AA0",
+                color: i === 0 ? "#FFD24D" : i === 1 ? "#C9C9D4" : i === 2 ? "#FF8A3D" : "var(--text-muted)",
                 flexShrink: 0
               }}
             >
@@ -79,7 +79,7 @@ export function RankingPanel({
               <div style={{ fontWeight: 700, fontSize: 14, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                 {r.display_name}
               </div>
-              <div style={{ color: "#9A9AA0", fontSize: 12 }}>{r.city || `@${r.username}`}</div>
+              <div style={{ color: "var(--text-muted)", fontSize: 12 }}>{r.city || `@${r.username}`}</div>
             </div>
             <div style={{ display: "flex", alignItems: "center", gap: 4, color: "#FF1B6B", fontWeight: 700, fontSize: 14, flexShrink: 0 }}>
               <Flame size={15} fill="#FF1B6B" /> {r.fires}

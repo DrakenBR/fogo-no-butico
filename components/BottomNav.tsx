@@ -37,7 +37,7 @@ export function BottomNav() {
           <Link
             key={n.href}
             href={n.href}
-            style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 3, color: active ? "#FF1B6B" : "#9A9AA0", textDecoration: "none" }}
+            style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 3, color: active ? "#FF1B6B" : "var(--text-muted)", textDecoration: "none" }}
           >
             <Icon size={23} fill={active ? "#FF1B6B" : "none"} />
             <span style={{ fontSize: 10.5, fontWeight: 600 }}>{n.label}</span>
@@ -70,7 +70,7 @@ export function BottomNav() {
           <Link
             key={n.href}
             href={n.href}
-            style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 3, color: active ? "#FF1B6B" : "#9A9AA0", textDecoration: "none" }}
+            style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 3, color: active ? "#FF1B6B" : "var(--text-muted)", textDecoration: "none" }}
           >
             <Icon size={23} fill={active ? "#FF1B6B" : "none"} />
             <span style={{ fontSize: 10.5, fontWeight: 600 }}>{n.label}</span>

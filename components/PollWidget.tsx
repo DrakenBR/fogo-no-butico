@@ -84,9 +84,9 @@ export function PollWidget({ postId, poll, meId }: Props) {
 
   return (
     <div style={{ padding: "0 18px 8px" }}>
-      <div style={{ display: "flex", alignItems: "center", gap: 6, color: "#9A9AA0", fontSize: 13, marginBottom: 8 }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 6, color: "var(--text-muted)", fontSize: 13, marginBottom: 8 }}>
         <Vote size={14} />
-        <span style={{ fontWeight: 700, color: "#F5F5F7" }}>{poll.question}</span>
+        <span style={{ fontWeight: 700, color: "var(--text)" }}>{poll.question}</span>
       </div>
 
       <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
@@ -104,8 +104,8 @@ export function PollWidget({ postId, poll, meId }: Props) {
                 padding: "10px 14px",
                 borderRadius: 10,
                 border: mine ? "1px solid #FF1B6B" : "1px solid rgba(255,255,255,0.08)",
-                background: "#1E1C22",
-                color: "#F5F5F7",
+                background: "var(--surface-up)",
+                color: "var(--text)",
                 cursor: meId ? "pointer" : "not-allowed",
                 textAlign: "left",
                 overflow: "hidden",
@@ -119,20 +119,20 @@ export function PollWidget({ postId, poll, meId }: Props) {
                     position: "absolute",
                     inset: 0,
                     width: `${pct}%`,
-                    background: mine ? "rgba(255,27,107,0.20)" : "rgba(255,255,255,0.05)",
+                    background: mine ? "rgba(255,27,107,0.20)" : "var(--border-soft)",
                     transition: "width .3s ease"
                   }}
                 />
               )}
               <div style={{ position: "relative", display: "flex", justifyContent: "space-between" }}>
                 <span>{opt}</span>
-                {showResults && <span style={{ color: "#9A9AA0", fontSize: 12 }}>{pct}% · {c}</span>}
+                {showResults && <span style={{ color: "var(--text-muted)", fontSize: 12 }}>{pct}% · {c}</span>}
               </div>
             </button>
           );
         })}
       </div>
-      <div style={{ color: "#9A9AA0", fontSize: 11.5, marginTop: 6 }}>
+      <div style={{ color: "var(--text-muted)", fontSize: 11.5, marginTop: 6 }}>
         {total} voto{total === 1 ? "" : "s"}{!meId ? " · faça login pra votar" : ""}
       </div>
     </div>

@@ -69,7 +69,7 @@ export function RepostDialog({
         style={{
           width: "100%",
           maxWidth: 460,
-          background: "#161519",
+          background: "var(--surface)",
           border: "1px solid rgba(255,255,255,0.08)",
           borderRadius: 18,
           padding: 18
@@ -80,12 +80,12 @@ export function RepostDialog({
             <Flame size={18} color="#FF1B6B" fill="#FF1B6B" />
             <span className="display" style={{ fontSize: 18 }}>JOGAR MAIS FOGO</span>
           </div>
-          <button onClick={onClose} style={{ background: "none", border: "none", color: "#F5F5F7", cursor: "pointer" }}>
+          <button onClick={onClose} style={{ background: "none", border: "none", color: "var(--text)", cursor: "pointer" }}>
             <X size={20} />
           </button>
         </div>
 
-        <p style={{ color: "#9A9AA0", fontSize: 13.5, marginTop: 0, marginBottom: 12 }}>
+        <p style={{ color: "var(--text-muted)", fontSize: 13.5, marginTop: 0, marginBottom: 12 }}>
           Repostando @{originalAuthorName.split(" ")[0]} no teu feed.
         </p>
 
@@ -94,7 +94,7 @@ export function RepostDialog({
             display: "flex",
             gap: 10,
             padding: 10,
-            background: "#1E1C22",
+            background: "var(--surface-up)",
             borderRadius: 12,
             border: "1px solid rgba(255,255,255,0.06)",
             marginBottom: 12,
@@ -112,7 +112,7 @@ export function RepostDialog({
           <div style={{ flex: 1, minWidth: 0 }}>
             <div style={{ fontSize: 13, fontWeight: 700 }}>{originalAuthorName}</div>
             {originalCaption && (
-              <div style={{ color: "#9A9AA0", fontSize: 12.5, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden", marginTop: 2 }}>
+              <div style={{ color: "var(--text-muted)", fontSize: 12.5, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden", marginTop: 2 }}>
                 {originalCaption}
               </div>
             )}
@@ -127,11 +127,11 @@ export function RepostDialog({
           rows={3}
           style={{
             width: "100%",
-            background: "#1E1C22",
+            background: "var(--surface-up)",
             border: "1px solid rgba(255,255,255,0.08)",
             borderRadius: 10,
             padding: 12,
-            color: "#F5F5F7",
+            color: "var(--text)",
             fontSize: 14,
             outline: "none",
             resize: "vertical"
@@ -143,7 +143,7 @@ export function RepostDialog({
         <div style={{ display: "flex", gap: 8, marginTop: 14 }}>
           <button
             onClick={onClose}
-            style={{ flex: 1, padding: "11px 12px", borderRadius: 10, background: "transparent", border: "1px solid rgba(255,255,255,0.1)", color: "#9A9AA0", fontWeight: 700, cursor: "pointer" }}
+            style={{ flex: 1, padding: "11px 12px", borderRadius: 10, background: "transparent", border: "1px solid rgba(255,255,255,0.1)", color: "var(--text-muted)", fontWeight: 700, cursor: "pointer" }}
           >
             Cancelar
           </button>
