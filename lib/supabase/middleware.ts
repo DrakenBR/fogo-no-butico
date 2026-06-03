@@ -1,7 +1,7 @@
 import { createServerClient, type CookieOptions } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
-const PUBLIC_ROUTES = ["/login", "/signup", "/auth"];
+const PUBLIC_ROUTES = ["/login", "/signup", "/auth", "/icon", "/apple-icon", "/opengraph-image"];
 
 export async function updateSession(request: NextRequest) {
   let response = NextResponse.next({ request });
