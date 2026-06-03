@@ -3,7 +3,7 @@
 import { Flame, Search, Home, Trophy, User, PlusCircle, ShieldCheck } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Avatar } from "./Avatar";
+import { SidebarUserMenu } from "./SidebarUserMenu";
 import type { Profile } from "@/types/database";
 
 const items = [
@@ -109,15 +109,7 @@ export function Sidebar({ me }: { me: Profile | null }) {
         </Link>
       )}
 
-      {me && (
-        <Link href="/perfil" style={{ marginTop: "auto", display: "flex", alignItems: "center", gap: 10, padding: 8, textDecoration: "none", color: "inherit" }}>
-          <Avatar src={me.avatar_url} seed={me.username} initial={me.display_name} size={38} />
-          <div>
-            <div style={{ fontWeight: 700, fontSize: 14 }}>{me.display_name}</div>
-            <div style={{ color: "#9A9AA0", fontSize: 12 }}>@{me.username}</div>
-          </div>
-        </Link>
-      )}
+      {me && <SidebarUserMenu me={me} />}
     </aside>
   );
 }
