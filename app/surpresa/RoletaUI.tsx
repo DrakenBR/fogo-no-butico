@@ -16,7 +16,7 @@ const RADIUS_OPTIONS = [
 ];
 
 interface RoletaProfile {
-  id: string;
+  user_id: string;
   username: string;
   display_name: string;
   avatar_url: string | null;
