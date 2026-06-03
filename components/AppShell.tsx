@@ -12,7 +12,7 @@ export async function AppShell({
 }: {
   children: React.ReactNode;
   right?: React.ReactNode;
-  /** Quando true (admin), o center se expande até 1200px e ignora o right aside */
+  /** Quando true (admin), o center se expande até preencher o espaço; sem right aside */
   wide?: boolean;
 }) {
   const supabase = createClient();
@@ -23,60 +23,72 @@ export async function AppShell({
     me = data ?? null;
   }
 
-  const mainMaxWidth = wide ? 1200 : 632;
+  // No modo "wide" (admin) o conteúdo central usa quase toda a largura disponível.
+  // No modo normal (feed) o conteúdo central fica centralizado em coluna estilo Instagram.
+  const innerMaxWidth = wide ? 1400 : 680;
   const showRight = !wide && !!right;
 
   return (
-    <div style={{ display: "flex", minHeight: "100vh", justifyContent: "center" }}>
+    <div style={{ display: "flex", minHeight: "100vh", width: "100%" }}>
       <Sidebar me={me} />
 
       <main
         style={{
           flex: 1,
-          maxWidth: mainMaxWidth,
-          padding: "0 0 90px",
-          borderRight: "1px solid rgba(255,255,255,0.08)",
-          borderLeft: "1px solid rgba(255,255,255,0.08)",
-          minWidth: 0
+          minWidth: 0,
+          display: "flex",
+          justifyContent: "center",
+          padding: "0 0 90px"
         }}
       >
         <div
-          className="md:hidden flex"
           style={{
-            position: "sticky",
-            top: 0,
-            zIndex: 10,
-            background: "rgba(13,13,15,0.85)",
-            backdropFilter: "blur(12px)",
-            borderBottom: "1px solid rgba(255,255,255,0.08)",
-            padding: "14px 18px",
-            alignItems: "center",
-            gap: 8
+            width: "100%",
+            maxWidth: innerMaxWidth,
+            minWidth: 0,
+            borderLeft: wide ? "none" : "1px solid rgba(255,255,255,0.08)",
+            borderRight: wide ? "none" : "1px solid rgba(255,255,255,0.08)"
           }}
         >
-          <Link href="/" style={{ display: "flex", alignItems: "center", gap: 8, textDecoration: "none", color: "inherit" }}>
-            <Flame size={24} color="#FF1B6B" fill="#FF1B6B" />
-            <span className="display" style={{ fontSize: 20 }}>
-              FOGO NO <span style={{ color: "#FF1B6B" }}>BUTICO</span>
-            </span>
-          </Link>
-        </div>
+          <div
+            className="md:hidden flex"
+            style={{
+              position: "sticky",
+              top: 0,
+              zIndex: 10,
+              background: "rgba(13,13,15,0.85)",
+              backdropFilter: "blur(12px)",
+              borderBottom: "1px solid rgba(255,255,255,0.08)",
+              padding: "14px 18px",
+              alignItems: "center",
+              gap: 8
+            }}
+          >
+            <Link href="/" style={{ display: "flex", alignItems: "center", gap: 8, textDecoration: "none", color: "inherit" }}>
+              <Flame size={24} color="#FF1B6B" fill="#FF1B6B" />
+              <span className="display" style={{ fontSize: 20 }}>
+                FOGO NO <span style={{ color: "#FF1B6B" }}>BUTICO</span>
+              </span>
+            </Link>
+          </div>
 
-        {children}
+          {children}
+        </div>
       </main>
 
       {showRight && (
         <aside
           className="hidden lg:flex"
           style={{
-            width: 360,
+            width: 380,
             padding: "20px 18px 28px",
             position: "sticky",
             top: 0,
             height: "100vh",
             overflowY: "auto",
             flexShrink: 0,
-            flexDirection: "column"
+            flexDirection: "column",
+            borderLeft: "1px solid rgba(255,255,255,0.08)"
           }}
         >
           {right}
