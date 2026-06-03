@@ -1,17 +1,18 @@
 "use client";
 
-import { Flame, Search, Home, Trophy, User, PlusCircle, ShieldCheck, Bell, MessageCircle } from "lucide-react";
+import { Flame, Search, Home, Trophy, User, PlusCircle, ShieldCheck, Bell, MessageCircle, Heart } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { SidebarUserMenu } from "./SidebarUserMenu";
 import type { Profile } from "@/types/database";
 
-type BadgeKind = "notif" | "chat" | null;
+type BadgeKind = "notif" | "chat" | "crush" | null;
 
 const items: { href: string; icon: typeof Home; label: string; badge?: BadgeKind }[] = [
   { href: "/", icon: Home, label: "Feed" },
   { href: "/buscar", icon: Search, label: "Buscar" },
   { href: "/chat", icon: MessageCircle, label: "Chat", badge: "chat" },
+  { href: "/curtidas", icon: Heart, label: "Curtidas", badge: "crush" },
   { href: "/notificacoes", icon: Bell, label: "Notificações", badge: "notif" },
   { href: "/ranking", icon: Trophy, label: "Ranking" },
   { href: "/perfil", icon: User, label: "Perfil" }
@@ -20,11 +21,13 @@ const items: { href: string; icon: typeof Home; label: string; badge?: BadgeKind
 export function Sidebar({
   me,
   unreadNotifs = 0,
-  unreadMessages = 0
+  unreadMessages = 0,
+  unrevealedCrushers = 0
 }: {
   me: Profile | null;
   unreadNotifs?: number;
   unreadMessages?: number;
+  unrevealedCrushers?: number;
 }) {
   const path = usePathname();
   return (
@@ -57,7 +60,10 @@ export function Sidebar({
       {items.map((n) => {
         const active = n.href === "/" ? path === "/" : path.startsWith(n.href);
         const Icon = n.icon;
-        const count = n.badge === "notif" ? unreadNotifs : n.badge === "chat" ? unreadMessages : 0;
+        const count =
+          n.badge === "notif" ? unreadNotifs :
+          n.badge === "chat" ? unreadMessages :
+          n.badge === "crush" ? unrevealedCrushers : 0;
         const badge = !!n.badge && count > 0;
         return (
           <Link

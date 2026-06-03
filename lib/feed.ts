@@ -14,10 +14,14 @@ export async function getFeed(
     .from("posts")
     .select(
       `
-      id, user_id, media_url, media_type, caption, created_at,
+      id, user_id, media_url, media_type, caption, created_at, original_post_id, poll,
       author:profiles!inner(id, username, display_name, avatar_url, city, looking_for),
       reactions(user_id),
-      comments(count)
+      comments(count),
+      original:posts!posts_original_post_id_fkey(
+        id, media_url, media_type, caption,
+        author:profiles!posts_user_id_fkey(username, display_name, avatar_url)
+      )
     `
     )
     .order("created_at", { ascending: false })
@@ -39,7 +43,10 @@ export async function getFeed(
       media_type: p.media_type,
       caption: p.caption,
       created_at: p.created_at,
+      original_post_id: p.original_post_id ?? null,
+      poll: p.poll ?? null,
       author: p.author,
+      original: p.original ?? null,
       fires: reacts.length,
       comments_count: commentsCount,
       liked_by_me: meId ? reacts.some((r) => r.user_id === meId) : false

@@ -8,6 +8,7 @@ import { lookingStyle, photoGradient } from "@/lib/utils";
 import { logout } from "@/app/login/actions";
 import { LinkButtons } from "@/components/LinkButtons";
 import { ProfileActions } from "@/components/ProfileActions";
+import { ProfileHighlights } from "@/components/ProfileHighlights";
 import type { ProfileLink } from "@/types/database";
 
 export const dynamic = "force-dynamic";
@@ -144,6 +145,14 @@ export default async function PerfilPage({ params }: { params: { username: strin
             />
           </div>
         )}
+
+        <ProfileHighlights
+          userId={profile.id}
+          userUsername={profile.username}
+          userDisplayName={profile.display_name}
+          userAvatar={profile.avatar_url}
+          meId={user?.id ?? null}
+        />
 
         <div style={{ borderTop: "1px solid rgba(255,255,255,0.08)", padding: "14px 0 0", display: "flex", justifyContent: "center", gap: 6, color: "#FF1B6B", fontWeight: 700, fontSize: 13 }}>
           <Grid3x3 size={16} /> POSTS

@@ -117,6 +117,7 @@ export function Fogueira({ groups: initialGroups, meId }: { groups: StoryGroup[]
           groups={sortedGroups}
           startIdx={openIdx}
           onView={markViewed}
+          meId={meId}
           onClose={() => setOpenIdx(null)}
         />
       )}

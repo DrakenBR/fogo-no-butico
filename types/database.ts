@@ -64,6 +64,12 @@ export interface AdminKpis {
   stories_total: number;
 }
 
+export interface Poll {
+  question: string;
+  options: string[];
+  ends_at?: string | null;
+}
+
 export interface Post {
   id: string;
   user_id: string;
@@ -71,6 +77,40 @@ export interface Post {
   media_type: MediaType;
   caption: string | null;
   created_at: string;
+  original_post_id: string | null;
+  poll: Poll | null;
+}
+
+export interface PollVote {
+  post_id: string;
+  user_id: string;
+  option_idx: number;
+  created_at: string;
+}
+
+export interface MessageReaction {
+  message_id: string;
+  user_id: string;
+  emoji: string;
+  created_at: string;
+}
+
+export interface CrusherPreview {
+  preview_id: string;
+  city: string | null;
+  blur_avatar: string | null;
+  created_at: string;
+  initial: string;
+  is_match: boolean;
+}
+
+export interface HighlightCollection {
+  user_id: string;
+  highlight_collection: string;
+  total: number;
+  first_at: string;
+  last_at: string;
+  cover_url: string | null;
 }
 
 export interface Reaction {
@@ -188,6 +228,8 @@ export interface Story {
   media_url: string;
   media_type: MediaType;
   caption: string | null;
+  audio_url: string | null;
+  highlight_collection: string | null;
   created_at: string;
   expires_at: string;
 }
@@ -223,6 +265,18 @@ export interface FeedPost extends Post {
   fires: number;
   comments_count: number;
   liked_by_me: boolean;
+  /** Quando esse post é um repost, info do post original com o autor */
+  original?: {
+    id: string;
+    media_url: string;
+    media_type: MediaType;
+    caption: string | null;
+    author: {
+      username: string;
+      display_name: string;
+      avatar_url: string | null;
+    } | null;
+  } | null;
 }
 
 export interface Database {

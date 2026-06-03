@@ -1,9 +1,10 @@
 "use client";
 
-import { X } from "lucide-react";
-import { useEffect, useState } from "react";
+import { X, Bookmark, BookmarkCheck, Volume2, VolumeX } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 import { Avatar } from "./Avatar";
 import { timeAgo } from "@/lib/utils";
+import { createClient } from "@/lib/supabase/client";
 import type { StoryGroup } from "@/types/database";
 
 const STORY_DURATION = 5000;
@@ -12,16 +13,21 @@ export function StoryViewer({
   groups,
   startIdx,
   onClose,
-  onView
+  onView,
+  meId
 }: {
   groups: StoryGroup[];
   startIdx: number;
   onClose: () => void;
   onView?: (storyId: string) => void;
+  meId?: string | null;
 }) {
   const [gi, setGi] = useState(startIdx);
   const [si, setSi] = useState(0);
   const [progress, setProgress] = useState(0);
+  const [muted, setMuted] = useState(false);
+  const [highlightOpen, setHighlightOpen] = useState(false);
+  const audioRef = useRef<HTMLAudioElement>(null);
 
   const group = groups[gi];
   const story = group?.stories[si];
@@ -42,6 +48,17 @@ export function StoryViewer({
     return () => cancelAnimationFrame(raf);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [gi, si]);
+
+  // Play / pause audio when story changes
+  useEffect(() => {
+    const a = audioRef.current;
+    if (!a) return;
+    a.muted = muted;
+    if (story?.audio_url) {
+      a.currentTime = 0;
+      a.play().catch(() => {});
+    }
+  }, [story?.audio_url, muted]);
 
   const advance = () => {
     if (!group) return;
@@ -64,6 +81,9 @@ export function StoryViewer({
     onClose();
     return null;
   }
+
+  const isMine = !!meId && story.user_id === meId;
+  const isHighlighted = !!story.highlight_collection;
 
   return (
     <div
@@ -92,6 +112,11 @@ export function StoryViewer({
           border: "1px solid rgba(255,255,255,0.08)"
         }}
       >
+        {/* Áudio */}
+        {story.audio_url && (
+          <audio ref={audioRef} src={story.audio_url} loop preload="auto" />
+        )}
+
         {/* Progress bars */}
         <div style={{ position: "absolute", top: 12, left: 12, right: 12, display: "flex", gap: 4, zIndex: 3 }}>
           {group.stories.map((_, i) => (
@@ -115,6 +140,27 @@ export function StoryViewer({
             {group.display_name}{" "}
             <span style={{ color: "rgba(255,255,255,0.6)", fontWeight: 400, fontSize: 12 }}>{timeAgo(story.created_at)}</span>
           </span>
+
+          {story.audio_url && (
+            <button
+              onClick={() => setMuted((m) => !m)}
+              style={{ background: "rgba(0,0,0,0.3)", border: "none", borderRadius: "50%", width: 30, height: 30, color: "#fff", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}
+              title={muted ? "Desmutar" : "Mutar"}
+            >
+              {muted ? <VolumeX size={15} /> : <Volume2 size={15} />}
+            </button>
+          )}
+
+          {isMine && (
+            <button
+              onClick={() => setHighlightOpen(true)}
+              style={{ background: "rgba(0,0,0,0.3)", border: "none", borderRadius: "50%", width: 30, height: 30, color: isHighlighted ? "#FFB13D" : "#fff", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}
+              title={isHighlighted ? "Editar destaque" : "Destacar no perfil"}
+            >
+              {isHighlighted ? <BookmarkCheck size={15} fill="#FFB13D" /> : <Bookmark size={15} />}
+            </button>
+          )}
+
           <button
             onClick={onClose}
             style={{ background: "none", border: "none", cursor: "pointer", color: "#fff", padding: 4 }}
@@ -151,6 +197,120 @@ export function StoryViewer({
             {story.caption}
           </div>
         )}
+
+        {highlightOpen && isMine && (
+          <HighlightDialog
+            storyId={story.id}
+            currentCollection={story.highlight_collection}
+            onClose={() => setHighlightOpen(false)}
+            onSaved={(name) => {
+              // mutate locally so UI reflects
+              story.highlight_collection = name;
+              setHighlightOpen(false);
+            }}
+          />
+        )}
+      </div>
+    </div>
+  );
+}
+
+function HighlightDialog({
+  storyId,
+  currentCollection,
+  onClose,
+  onSaved
+}: {
+  storyId: string;
+  currentCollection: string | null;
+  onClose: () => void;
+  onSaved: (name: string | null) => void;
+}) {
+  const [name, setName] = useState(currentCollection ?? "Destaques");
+  const [pending, setPending] = useState(false);
+
+  const save = async (collection: string | null) => {
+    setPending(true);
+    const supabase = createClient();
+    await supabase.from("stories").update({ highlight_collection: collection }).eq("id", storyId);
+    setPending(false);
+    onSaved(collection);
+  };
+
+  return (
+    <div
+      onClick={(e) => {
+        e.stopPropagation();
+        onClose();
+      }}
+      style={{
+        position: "absolute",
+        inset: 0,
+        background: "rgba(0,0,0,0.75)",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        padding: 18,
+        zIndex: 10
+      }}
+    >
+      <div
+        onClick={(e) => e.stopPropagation()}
+        style={{
+          width: "100%",
+          background: "#161519",
+          border: "1px solid rgba(255,255,255,0.08)",
+          borderRadius: 14,
+          padding: 16
+        }}
+      >
+        <div className="display" style={{ fontSize: 16, color: "#FFB13D", marginBottom: 8 }}>DESTAQUE</div>
+        <p style={{ color: "#9A9AA0", fontSize: 12.5, margin: "0 0 12px" }}>
+          Dá um nome pra coleção. Esse story fica no teu perfil mesmo depois das 24h.
+        </p>
+        <input
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          maxLength={40}
+          placeholder="Ex: Festas, Viagens..."
+          style={{
+            width: "100%",
+            background: "#1E1C22",
+            border: "1px solid rgba(255,255,255,0.08)",
+            borderRadius: 10,
+            padding: "10px 12px",
+            color: "#F5F5F7",
+            fontSize: 14,
+            outline: "none",
+            marginBottom: 12
+          }}
+        />
+        <div style={{ display: "flex", gap: 8 }}>
+          {currentCollection && (
+            <button
+              onClick={() => save(null)}
+              disabled={pending}
+              style={{ flex: 1, padding: "10px 12px", borderRadius: 10, background: "transparent", border: "1px solid rgba(255,255,255,0.1)", color: "#FF6A9E", fontWeight: 700, cursor: "pointer", fontSize: 13 }}
+            >
+              Remover destaque
+            </button>
+          )}
+          <button
+            onClick={onClose}
+            disabled={pending}
+            style={{ padding: "10px 12px", borderRadius: 10, background: "transparent", border: "1px solid rgba(255,255,255,0.1)", color: "#9A9AA0", fontWeight: 700, cursor: "pointer", fontSize: 13 }}
+          >
+            Cancelar
+          </button>
+          <button
+            onClick={() => save(name.trim() || "Destaques")}
+            disabled={pending}
+            className="fire-bg"
+            style={{ flex: 1, padding: "10px 12px", borderRadius: 10, border: "none", color: "#fff", fontWeight: 700, cursor: pending ? "wait" : "pointer", fontSize: 13 }}
+          >
+            {pending ? "..." : "Destacar"}
+          </button>
+        </div>
       </div>
     </div>
   );

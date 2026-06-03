@@ -1,12 +1,14 @@
 "use client";
 
-import { MessageCircle, MapPin, MoreHorizontal, Flag } from "lucide-react";
+import { MessageCircle, MapPin, MoreHorizontal, Flag, Repeat } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { Avatar } from "./Avatar";
 import { FireButton } from "./FireButton";
 import { CommentsModal } from "./CommentsModal";
 import { ReportDialog } from "./ReportDialog";
+import { RepostDialog } from "./RepostDialog";
+import { PollWidget } from "./PollWidget";
 import { lookingStyle, photoGradient, timeAgo } from "@/lib/utils";
 import type { FeedPost } from "@/types/database";
 
@@ -15,6 +17,7 @@ export function PostCard({ post, meId }: { post: FeedPost; meId: string | null }
   const [openComments, setOpenComments] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [reportOpen, setReportOpen] = useState(false);
+  const [repostOpen, setRepostOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -26,8 +29,30 @@ export function PostCard({ post, meId }: { post: FeedPost; meId: string | null }
     return () => document.removeEventListener("mousedown", onClick);
   }, [menuOpen]);
 
+  const isRepost = !!post.original_post_id && !!post.original;
+  const visibleMedia = isRepost ? post.original!.media_url : post.media_url;
+  const visibleType = isRepost ? post.original!.media_type : post.media_type;
+
   return (
     <article style={{ borderBottom: "1px solid rgba(255,255,255,0.08)", padding: "18px 0" }}>
+      {isRepost && (
+        <div style={{ display: "flex", alignItems: "center", gap: 6, padding: "0 18px 6px", color: "#9A9AA0", fontSize: 12.5 }}>
+          <Repeat size={13} color="#FF1B6B" />
+          <Link href={`/perfil/${post.author.username}`} style={{ color: "inherit", textDecoration: "none", fontWeight: 600 }}>
+            {post.author.display_name}
+          </Link>
+          <span>jogou mais fogo</span>
+          {post.original!.author && (
+            <>
+              <span>em</span>
+              <Link href={`/perfil/${post.original!.author.username}`} style={{ color: "#FF1B6B", textDecoration: "none", fontWeight: 700 }}>
+                @{post.original!.author.username}
+              </Link>
+            </>
+          )}
+        </div>
+      )}
+
       <div style={{ display: "flex", alignItems: "center", gap: 11, padding: "0 18px 14px" }}>
         <Link href={`/perfil/${post.author.username}`}>
           <Avatar src={post.author.avatar_url} seed={post.author.username} initial={post.author.display_name} />
@@ -97,9 +122,9 @@ export function PostCard({ post, meId }: { post: FeedPost; meId: string | null }
       </div>
 
       <div style={{ margin: "0 18px", borderRadius: 18, border: "1px solid rgba(255,255,255,0.08)", overflow: "hidden", background: photoGradient(post.id) }}>
-        {post.media_type === "video" ? (
+        {visibleType === "video" ? (
           <video
-            src={post.media_url}
+            src={visibleMedia}
             controls
             playsInline
             style={{ width: "100%", aspectRatio: "4/5", objectFit: "cover", display: "block", background: "#000" }}
@@ -107,12 +132,14 @@ export function PostCard({ post, meId }: { post: FeedPost; meId: string | null }
         ) : (
           // eslint-disable-next-line @next/next/no-img-element
           <img
-            src={post.media_url}
+            src={visibleMedia}
             alt={post.caption || "post"}
             style={{ width: "100%", aspectRatio: "4/5", objectFit: "cover", display: "block" }}
           />
         )}
       </div>
+
+      {post.poll && <div style={{ marginTop: 12 }}><PollWidget postId={post.id} poll={post.poll} meId={meId} /></div>}
 
       <div style={{ display: "flex", alignItems: "center", gap: 20, padding: "14px 18px 8px" }}>
         <FireButton postId={post.id} initialFires={post.fires} initialLit={post.liked_by_me} meId={meId} />
@@ -123,6 +150,15 @@ export function PostCard({ post, meId }: { post: FeedPost; meId: string | null }
           <MessageCircle size={24} />
           <span style={{ fontWeight: 600, fontSize: 15 }}>{post.comments_count}</span>
         </button>
+        {meId && meId !== post.author.id && (
+          <button
+            onClick={() => setRepostOpen(true)}
+            title="Jogar mais fogo (repostar)"
+            style={{ background: "none", border: "none", cursor: "pointer", display: "flex", alignItems: "center", gap: 6, color: "#9A9AA0", padding: 0 }}
+          >
+            <Repeat size={22} />
+          </button>
+        )}
       </div>
 
       {post.caption && (
@@ -132,6 +168,15 @@ export function PostCard({ post, meId }: { post: FeedPost; meId: string | null }
           </Link>
           {post.caption}
         </p>
+      )}
+
+      {isRepost && post.original?.caption && (
+        <div style={{ padding: "8px 18px 0" }}>
+          <div style={{ borderLeft: "3px solid #FF1B6B", paddingLeft: 10, fontSize: 13, color: "#9A9AA0" }}>
+            <span style={{ fontWeight: 700, color: "#F5F5F7" }}>{post.original.author?.display_name?.split(" ")[0]}{" "}</span>
+            {post.original.caption}
+          </div>
+        </div>
       )}
 
       {post.comments_count > 0 && (
@@ -157,6 +202,17 @@ export function PostCard({ post, meId }: { post: FeedPost; meId: string | null }
           targetId={post.id}
           targetLabel={`o post de @${post.author.username}`}
           onClose={() => setReportOpen(false)}
+        />
+      )}
+
+      {repostOpen && (
+        <RepostDialog
+          originalPostId={post.original_post_id ?? post.id}
+          originalMediaUrl={visibleMedia}
+          originalMediaType={visibleType}
+          originalCaption={post.original?.caption ?? post.caption}
+          originalAuthorName={post.original?.author?.display_name ?? post.author.display_name}
+          onClose={() => setRepostOpen(false)}
         />
       )}
     </article>

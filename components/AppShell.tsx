@@ -20,15 +20,18 @@ export async function AppShell({
   let me: Profile | null = null;
   let unreadNotifs = 0;
   let unreadMessages = 0;
+  let unrevealedCrushers = 0;
   if (user) {
     const { data } = await supabase.from("profiles").select("*").eq("id", user.id).maybeSingle();
     me = data ?? null;
-    const [{ data: nCount }, { data: mCount }] = await Promise.all([
+    const [{ data: nCount }, { data: mCount }, { data: cCount }] = await Promise.all([
       supabase.rpc("unread_notifications_count"),
-      supabase.rpc("unread_messages_count")
+      supabase.rpc("unread_messages_count"),
+      supabase.rpc("unrevealed_crushers_count")
     ]);
     unreadNotifs = typeof nCount === "number" ? nCount : 0;
     unreadMessages = typeof mCount === "number" ? mCount : 0;
+    unrevealedCrushers = typeof cCount === "number" ? cCount : 0;
   }
 
   // No modo "wide" (admin) o conteúdo central usa quase toda a largura disponível.
@@ -38,7 +41,7 @@ export async function AppShell({
 
   return (
     <div style={{ display: "flex", minHeight: "100vh", width: "100%" }}>
-      <Sidebar me={me} unreadNotifs={unreadNotifs} unreadMessages={unreadMessages} />
+      <Sidebar me={me} unreadNotifs={unreadNotifs} unreadMessages={unreadMessages} unrevealedCrushers={unrevealedCrushers} />
 
       <main
         style={{
