@@ -3,6 +3,8 @@ import { Flame } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { OnboardingForm } from "./OnboardingForm";
 
+export const dynamic = "force-dynamic";
+
 export default async function OnboardingPage({ searchParams }: { searchParams: { error?: string } }) {
   const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();

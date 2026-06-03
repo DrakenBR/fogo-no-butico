@@ -2,6 +2,8 @@ import Link from "next/link";
 import { Flame } from "lucide-react";
 import { login } from "./actions";
 
+export const dynamic = "force-dynamic";
+
 export default function LoginPage({ searchParams }: { searchParams: { error?: string; next?: string } }) {
   return (
     <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", padding: 20 }}>

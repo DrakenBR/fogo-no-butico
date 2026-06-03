@@ -3,6 +3,14 @@ import { NextResponse, type NextRequest } from "next/server";
 
 const PUBLIC_ROUTES = ["/login", "/signup", "/auth", "/icon", "/apple-icon", "/opengraph-image"];
 
+/** Marca uma response como não cacheável (browser, CDN, e Next data cache) */
+function noStore(res: NextResponse) {
+  res.headers.set("Cache-Control", "no-store, max-age=0, must-revalidate");
+  res.headers.set("CDN-Cache-Control", "no-store");
+  res.headers.set("Vercel-CDN-Cache-Control", "no-store");
+  return res;
+}
+
 export async function updateSession(request: NextRequest) {
   let response = NextResponse.next({ request });
 
@@ -13,7 +21,7 @@ export async function updateSession(request: NextRequest) {
   // vai falhar no server component mostrando uma mensagem amigável)
   if (!url || !anon) {
     console.error("[middleware] envs do Supabase ausentes — pulando auth check");
-    return response;
+    return noStore(response);
   }
 
   try {
@@ -41,19 +49,19 @@ export async function updateSession(request: NextRequest) {
       const redirectUrl = request.nextUrl.clone();
       redirectUrl.pathname = "/login";
       redirectUrl.searchParams.set("next", pathname);
-      return NextResponse.redirect(redirectUrl);
+      return noStore(NextResponse.redirect(redirectUrl));
     }
 
     if (user && (pathname === "/login" || pathname === "/signup")) {
       const redirectUrl = request.nextUrl.clone();
       redirectUrl.pathname = "/";
-      return NextResponse.redirect(redirectUrl);
+      return noStore(NextResponse.redirect(redirectUrl));
     }
 
-    return response;
+    return noStore(response);
   } catch (err) {
     console.error("[middleware] auth check falhou:", err);
     // Falha de rede / config inválida — deixa a request seguir em vez de quebrar tudo
-    return response;
+    return noStore(response);
   }
 }
