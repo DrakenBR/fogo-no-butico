@@ -70,18 +70,25 @@ export async function AppShell({
               zIndex: 10,
               background: "rgba(13,13,15,0.85)",
               backdropFilter: "blur(12px)",
-              borderBottom: "1px solid rgba(255,255,255,0.08)",
-              padding: "14px 18px",
+              borderBottom: "1px solid var(--border)",
+              padding: "12px 16px",
               alignItems: "center",
-              gap: 8
+              gap: 10
             }}
           >
-            <Link href="/" style={{ display: "flex", alignItems: "center", gap: 8, textDecoration: "none", color: "inherit" }}>
-              <Flame size={24} color="#FF1B6B" fill="#FF1B6B" />
-              <span className="display" style={{ fontSize: 20 }}>
+            <MobileMenuDrawer
+              me={me}
+              unreadNotifs={unreadNotifs}
+              unreadMessages={unreadMessages}
+              unrevealedCrushers={unrevealedCrushers}
+            />
+            <Link href="/" style={{ display: "flex", alignItems: "center", gap: 6, textDecoration: "none", color: "inherit", flex: 1, justifyContent: "center" }}>
+              <Flame size={22} color="#FF1B6B" fill="#FF1B6B" />
+              <span className="display" style={{ fontSize: 18 }}>
                 FOGO NO <span style={{ color: "#FF1B6B" }}>BUTICO</span>
               </span>
             </Link>
+            <div style={{ width: 28 }} />
           </div>
 
           {children}
