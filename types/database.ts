@@ -185,6 +185,43 @@ export interface Message {
   created_at: string;
 }
 
+export interface ChatRow {
+  kind: "match" | "group";
+  chat_id: string;
+  title: string;
+  avatar_url: string | null;
+  subtitle: string;
+  last_body: string | null;
+  last_at: string;
+  last_sender_id: string | null;
+  unread_count: number;
+  members_count: number;
+}
+
+export interface Group {
+  id: string;
+  name: string;
+  avatar_url: string | null;
+  created_by: string | null;
+  created_at: string;
+}
+
+export interface GroupMessage {
+  id: string;
+  group_id: string;
+  sender_id: string;
+  body: string;
+  created_at: string;
+}
+
+export interface GroupMember {
+  group_id: string;
+  user_id: string;
+  joined_at: string;
+  last_read_at: string;
+  is_admin: boolean;
+}
+
 export interface SearchProfileRow {
   user_id: string;
   username: string;
