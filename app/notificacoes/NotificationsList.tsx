@@ -122,10 +122,12 @@ function phraseFor(kind: NotificationKind): string {
     case "fire_comment": return "botou fogo no teu comentário 🔥";
     case "comment": return "comentou no teu post";
     case "mention": return "te mencionou num comentário";
+    case "match": return "deu fogo de volta em você 🔥 — bora chamar?";
   }
 }
 
 function targetFor(n: NotificationRow): string {
+  if (n.kind === "match" && n.actor) return `/chat`;
   if (n.post && n.actor) {
     return `/perfil/${n.actor.username}/posts/${n.post.id}`;
   }
@@ -134,7 +136,7 @@ function targetFor(n: NotificationRow): string {
 }
 
 function KindIcon({ kind }: { kind: NotificationKind }) {
-  if (kind === "fire_post" || kind === "fire_comment") {
+  if (kind === "fire_post" || kind === "fire_comment" || kind === "match") {
     return <Flame size={12} color="#FF1B6B" fill="#FF1B6B" />;
   }
   if (kind === "comment") return <MessageCircle size={12} color="#C49BFF" />;

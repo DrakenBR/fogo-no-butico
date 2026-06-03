@@ -1,20 +1,31 @@
 "use client";
 
-import { Flame, Search, Home, Trophy, User, PlusCircle, ShieldCheck, Bell } from "lucide-react";
+import { Flame, Search, Home, Trophy, User, PlusCircle, ShieldCheck, Bell, MessageCircle } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { SidebarUserMenu } from "./SidebarUserMenu";
 import type { Profile } from "@/types/database";
 
-const items = [
+type BadgeKind = "notif" | "chat" | null;
+
+const items: { href: string; icon: typeof Home; label: string; badge?: BadgeKind }[] = [
   { href: "/", icon: Home, label: "Feed" },
   { href: "/buscar", icon: Search, label: "Buscar" },
-  { href: "/notificacoes", icon: Bell, label: "Notificações", showBadge: true as const },
+  { href: "/chat", icon: MessageCircle, label: "Chat", badge: "chat" },
+  { href: "/notificacoes", icon: Bell, label: "Notificações", badge: "notif" },
   { href: "/ranking", icon: Trophy, label: "Ranking" },
   { href: "/perfil", icon: User, label: "Perfil" }
 ];
 
-export function Sidebar({ me, unreadNotifs = 0 }: { me: Profile | null; unreadNotifs?: number }) {
+export function Sidebar({
+  me,
+  unreadNotifs = 0,
+  unreadMessages = 0
+}: {
+  me: Profile | null;
+  unreadNotifs?: number;
+  unreadMessages?: number;
+}) {
   const path = usePathname();
   return (
     <aside
@@ -46,7 +57,8 @@ export function Sidebar({ me, unreadNotifs = 0 }: { me: Profile | null; unreadNo
       {items.map((n) => {
         const active = n.href === "/" ? path === "/" : path.startsWith(n.href);
         const Icon = n.icon;
-        const badge = "showBadge" in n && n.showBadge && unreadNotifs > 0;
+        const count = n.badge === "notif" ? unreadNotifs : n.badge === "chat" ? unreadMessages : 0;
+        const badge = !!n.badge && count > 0;
         return (
           <Link
             key={n.href}
@@ -88,7 +100,7 @@ export function Sidebar({ me, unreadNotifs = 0 }: { me: Profile | null; unreadNo
                     lineHeight: 1
                   }}
                 >
-                  {unreadNotifs > 99 ? "99+" : unreadNotifs}
+                  {count > 99 ? "99+" : count}
                 </span>
               )}
             </span>

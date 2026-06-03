@@ -29,6 +29,8 @@ export default async function OnboardingPage({ searchParams }: { searchParams: {
           initialLookingFor={profile?.looking_for ?? "zoeira"}
           initialBio={profile?.bio ?? ""}
           initialLinks={Array.isArray(profile?.links) ? profile.links : []}
+          initialLat={profile?.lat ?? null}
+          initialLng={profile?.lng ?? null}
           error={searchParams.error}
         />
       </div>

@@ -1,18 +1,40 @@
 "use client";
 
-import { Search } from "lucide-react";
+import { Search, MapPin } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { Avatar } from "@/components/Avatar";
 import { lookingStyle } from "@/lib/utils";
-import type { LookingFor, Profile } from "@/types/database";
+import type { LookingFor, SearchProfileRow } from "@/types/database";
+
+const RADIUS_STEPS = [10, 25, 50, 100, 250, 500, 1000];
 
 export function BuscaUI() {
   const [q, setQ] = useState("");
   const [filter, setFilter] = useState<LookingFor | "todos">("todos");
-  const [rows, setRows] = useState<Profile[]>([]);
+  const [radius, setRadius] = useState<number | null>(null);
+  const [rows, setRows] = useState<SearchProfileRow[]>([]);
   const [loading, setLoading] = useState(false);
+  const [hasLocation, setHasLocation] = useState<boolean | null>(null);
+
+  // checa se o user tem lat/lng setados
+  useEffect(() => {
+    const supabase = createClient();
+    (async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        setHasLocation(false);
+        return;
+      }
+      const { data } = await supabase
+        .from("profiles")
+        .select("lat, lng")
+        .eq("id", user.id)
+        .maybeSingle();
+      setHasLocation(!!(data?.lat && data?.lng));
+    })();
+  }, []);
 
   useEffect(() => {
     const supabase = createClient();
@@ -20,28 +42,26 @@ export function BuscaUI() {
     setLoading(true);
 
     const handle = setTimeout(async () => {
-      let query = supabase.from("profiles").select("*").limit(40);
-      if (q.trim()) {
-        const term = q.trim().replace(/[%_]/g, "");
-        query = query.or(`username.ilike.%${term}%,display_name.ilike.%${term}%,city.ilike.%${term}%`);
+      const { data, error } = await supabase.rpc("search_profiles", {
+        q: q.trim() || null,
+        looking: filter === "todos" ? null : filter,
+        radius_km: radius,
+        result_limit: 60
+      });
+      if (canceled) return;
+      if (error) {
+        setRows([]);
+      } else {
+        setRows(((data ?? []) as unknown as SearchProfileRow[]));
       }
-      if (filter !== "todos") {
-        query = query.eq("looking_for", filter);
-      }
-      query = query.order("created_at", { ascending: false });
-
-      const { data } = await query;
-      if (!canceled) {
-        setRows((data ?? []) as Profile[]);
-        setLoading(false);
-      }
+      setLoading(false);
     }, 250);
 
     return () => {
       canceled = true;
       clearTimeout(handle);
     };
-  }, [q, filter]);
+  }, [q, filter, radius]);
 
   const filters = useMemo(
     () => [
@@ -78,7 +98,7 @@ export function BuscaUI() {
         />
       </div>
 
-      <div className="no-scrollbar" style={{ display: "flex", gap: 8, overflowX: "auto", marginBottom: 18, paddingBottom: 4 }}>
+      <div className="no-scrollbar" style={{ display: "flex", gap: 8, overflowX: "auto", marginBottom: 14, paddingBottom: 4 }}>
         {filters.map((f) => {
           const active = filter === f.id;
           return (
@@ -102,6 +122,60 @@ export function BuscaUI() {
           );
         })}
       </div>
+
+      {hasLocation === false && (
+        <div style={{ background: "rgba(255,177,61,0.1)", border: "1px solid rgba(255,177,61,0.3)", borderRadius: 12, padding: 12, fontSize: 13, color: "#FFB13D", marginBottom: 14, display: "flex", alignItems: "center", gap: 8 }}>
+          <MapPin size={15} />
+          <span>
+            Pra filtrar por distância,{" "}
+            <Link href="/onboarding" style={{ color: "#FFB13D", fontWeight: 700, textDecoration: "underline" }}>
+              ativa tua localização no perfil
+            </Link>
+          </span>
+        </div>
+      )}
+
+      {hasLocation && (
+        <div style={{ background: "#161519", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 12, padding: 12, marginBottom: 18 }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 13.5, fontWeight: 600 }}>
+              <MapPin size={15} color="#FF1B6B" />
+              {radius ? `Raio: ${radius} km` : "Sem filtro de distância"}
+            </div>
+            {radius && (
+              <button
+                onClick={() => setRadius(null)}
+                style={{ background: "transparent", border: "none", color: "#9A9AA0", fontSize: 12, cursor: "pointer", fontWeight: 600 }}
+              >
+                limpar
+              </button>
+            )}
+          </div>
+          <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+            {RADIUS_STEPS.map((km) => {
+              const active = radius === km;
+              return (
+                <button
+                  key={km}
+                  onClick={() => setRadius(active ? null : km)}
+                  style={{
+                    padding: "6px 12px",
+                    borderRadius: 999,
+                    border: active ? "1px solid #FF1B6B" : "1px solid rgba(255,255,255,0.06)",
+                    background: active ? "rgba(255,27,107,0.15)" : "#1E1C22",
+                    color: active ? "#FF1B6B" : "#9A9AA0",
+                    fontSize: 12,
+                    fontWeight: 600,
+                    cursor: "pointer"
+                  }}
+                >
+                  {km}km
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       {loading && <div style={{ color: "#9A9AA0", textAlign: "center", padding: 20 }}>Procurando...</div>}
       {!loading && rows.length === 0 && (
@@ -132,6 +206,11 @@ export function BuscaUI() {
                   @{p.username} {p.city ? `· ${p.city}` : ""}
                 </div>
               </div>
+              {p.distance_km !== null && (
+                <div style={{ color: "#9A9AA0", fontSize: 12, display: "flex", alignItems: "center", gap: 3 }}>
+                  <MapPin size={11} /> {p.distance_km < 1 ? "<1" : Math.round(p.distance_km)}km
+                </div>
+              )}
               <span style={{ background: tag.bg, color: tag.color, fontSize: 12, fontWeight: 600, padding: "4px 10px", borderRadius: 999 }}>
                 {tag.label}
               </span>

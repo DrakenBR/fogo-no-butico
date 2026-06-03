@@ -7,6 +7,7 @@ import Link from "next/link";
 import { lookingStyle, photoGradient } from "@/lib/utils";
 import { logout } from "@/app/login/actions";
 import { LinkButtons } from "@/components/LinkButtons";
+import { ProfileActions } from "@/components/ProfileActions";
 import type { ProfileLink } from "@/types/database";
 
 export const dynamic = "force-dynamic";
@@ -128,6 +129,19 @@ export default async function PerfilPage({ params }: { params: { username: strin
                 Sair
               </button>
             </form>
+          </div>
+        )}
+
+        {!isMe && user && (
+          <div style={{ padding: "0 22px 18px", display: "flex", gap: 8 }}>
+            <ProfileActions
+              targetId={profile.id}
+              targetUsername={profile.username}
+              targetDisplayName={profile.display_name}
+              targetAvatar={profile.avatar_url}
+              meAvatar={null}
+              meDisplayName={user.email ?? ""}
+            />
           </div>
         )}
 

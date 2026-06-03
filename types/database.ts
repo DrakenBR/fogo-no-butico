@@ -97,7 +97,63 @@ export interface CommentReaction {
   created_at: string;
 }
 
-export type NotificationKind = "fire_post" | "fire_comment" | "comment" | "mention";
+export type NotificationKind = "fire_post" | "fire_comment" | "comment" | "mention" | "match";
+
+export interface CrushStatus {
+  i_crushed: boolean;
+  they_crushed: boolean;
+  matched: boolean;
+  conversation_id: string | null;
+}
+
+export interface MatchSummary {
+  conversation_id: string;
+  other_id: string;
+  other_username: string;
+  other_display_name: string;
+  other_avatar_url: string | null;
+  other_city: string | null;
+  matched_at: string;
+  last_message_body: string | null;
+  last_message_at: string | null;
+  last_message_sender: string | null;
+  unread_count: number;
+}
+
+export interface Message {
+  id: string;
+  conversation_id: string;
+  sender_id: string;
+  body: string;
+  read_at: string | null;
+  created_at: string;
+}
+
+export interface SearchProfileRow {
+  id: string;
+  username: string;
+  display_name: string;
+  avatar_url: string | null;
+  city: string | null;
+  looking_for: LookingFor;
+  distance_km: number | null;
+}
+
+export type ReportKind = "post" | "comment" | "user";
+
+export interface AdminReportRow {
+  id: string;
+  kind: ReportKind;
+  target_id: string;
+  reason: string | null;
+  created_at: string;
+  resolved_at: string | null;
+  reporter_username: string;
+  reporter_display_name: string;
+  reporter_avatar_url: string | null;
+  snippet: string | null;
+  context_username: string | null;
+}
 
 export interface NotificationRow {
   id: string;

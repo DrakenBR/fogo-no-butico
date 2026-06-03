@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { Plus, Trash2 } from "lucide-react";
+import { Plus, Trash2, MapPin } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { Avatar } from "@/components/Avatar";
 import { LinkIcon } from "@/components/LinkIcon";
@@ -17,6 +17,8 @@ interface Props {
   initialLookingFor: LookingFor;
   initialBio: string;
   initialLinks: ProfileLink[];
+  initialLat: number | null;
+  initialLng: number | null;
   error?: string;
 }
 
@@ -30,6 +32,8 @@ export function OnboardingForm({
   initialLookingFor,
   initialBio,
   initialLinks,
+  initialLat,
+  initialLng,
   error
 }: Props) {
   const router = useRouter();
@@ -43,8 +47,42 @@ export function OnboardingForm({
   const [lookingFor, setLookingFor] = useState<LookingFor>(initialLookingFor);
   const [bio, setBio] = useState(initialBio);
   const [links, setLinks] = useState<ProfileLink[]>(initialLinks);
+  const [lat, setLat] = useState<number | null>(initialLat);
+  const [lng, setLng] = useState<number | null>(initialLng);
+  const [geoStatus, setGeoStatus] = useState<"idle" | "asking" | "ok" | "err">(
+    initialLat !== null && initialLng !== null ? "ok" : "idle"
+  );
+  const [geoErr, setGeoErr] = useState<string | null>(null);
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
+
+  const useLocation = () => {
+    if (!navigator.geolocation) {
+      setGeoStatus("err");
+      setGeoErr("Browser não tem GPS");
+      return;
+    }
+    setGeoStatus("asking");
+    setGeoErr(null);
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        setLat(Number(pos.coords.latitude.toFixed(6)));
+        setLng(Number(pos.coords.longitude.toFixed(6)));
+        setGeoStatus("ok");
+      },
+      (err) => {
+        setGeoStatus("err");
+        setGeoErr(err.message);
+      },
+      { enableHighAccuracy: false, timeout: 8000, maximumAge: 60000 }
+    );
+  };
+
+  const clearLocation = () => {
+    setLat(null);
+    setLng(null);
+    setGeoStatus("idle");
+  };
 
   const onAvatar = (f: File | null) => {
     setAvatarFile(f);
@@ -117,6 +155,8 @@ export function OnboardingForm({
           looking_for: lookingFor,
           bio: bio.trim(),
           links: cleanLinks,
+          lat,
+          lng,
           ...(avatarUrl ? { avatar_url: avatarUrl } : {})
         })
         .eq("id", user.id);
@@ -191,6 +231,34 @@ export function OnboardingForm({
               {opt === "marido" ? "💍 marido" : opt === "amante" ? "💋 amante" : "🍻 zoeira"}
             </button>
           ))}
+        </div>
+      </Field>
+
+      <Field label="Localização (pra busca por raio)">
+        <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+          {geoStatus === "ok" && lat !== null && lng !== null ? (
+            <>
+              <div style={{ flex: 1, padding: "11px 14px", background: "rgba(255,27,107,0.08)", border: "1px solid rgba(255,27,107,0.25)", borderRadius: 12, color: "#FF1B6B", fontSize: 13.5, fontWeight: 600, display: "flex", alignItems: "center", gap: 8 }}>
+                <MapPin size={15} /> {lat.toFixed(3)}, {lng.toFixed(3)}
+              </div>
+              <button type="button" onClick={clearLocation} style={{ padding: "11px 12px", borderRadius: 12, background: "transparent", border: "1px solid rgba(255,255,255,0.08)", color: "#9A9AA0", cursor: "pointer", fontWeight: 600, fontSize: 13 }}>
+                Limpar
+              </button>
+            </>
+          ) : (
+            <button
+              type="button"
+              onClick={useLocation}
+              disabled={geoStatus === "asking"}
+              style={{ flex: 1, padding: "11px 14px", borderRadius: 12, background: "#161519", border: "1px dashed rgba(255,27,107,0.45)", color: "#FF1B6B", fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8, fontSize: 14 }}
+            >
+              <MapPin size={16} /> {geoStatus === "asking" ? "Pegando GPS..." : "Usar minha localização"}
+            </button>
+          )}
+        </div>
+        {geoErr && <div style={{ color: "#FF6A9E", fontSize: 12.5, marginTop: 6 }}>{geoErr}</div>}
+        <div style={{ color: "#9A9AA0", fontSize: 12, marginTop: 6 }}>
+          Pra outros encontrarem você por proximidade. Compartilha só lat/lng (sem endereço).
         </div>
       </Field>
 

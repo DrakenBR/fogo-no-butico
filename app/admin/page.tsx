@@ -5,6 +5,7 @@ import { AppShell } from "@/components/AppShell";
 import { KpiCard } from "@/components/admin/KpiCard";
 import { UsersAdminTable } from "@/components/admin/UsersAdminTable";
 import { PostsAdminTable } from "@/components/admin/PostsAdminTable";
+import { ReportsAdminTable } from "@/components/admin/ReportsAdminTable";
 import type { AdminKpis } from "@/types/database";
 
 export const dynamic = "force-dynamic";
@@ -50,6 +51,10 @@ export default async function AdminPage() {
           <KpiCard label="Stories ativos" value={k.stories_active ?? 0} sub={`${k.stories_total ?? 0} totais`} icon={Sparkles} accent="#FFB13D" />
           <KpiCard label="Admins" value={k.admins_total ?? 0} sub="" icon={ShieldCheck} accent="#FFB13D" />
           <KpiCard label="Novos 7d" value={k.users_last_7d ?? 0} icon={UserPlus} accent="#C49BFF" />
+        </div>
+
+        <div style={{ marginBottom: 36 }}>
+          <ReportsAdminTable />
         </div>
 
         <div style={{ marginBottom: 36 }}>

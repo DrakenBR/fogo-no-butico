@@ -1,17 +1,30 @@
 "use client";
 
-import { MessageCircle, MapPin } from "lucide-react";
+import { MessageCircle, MapPin, MoreHorizontal, Flag } from "lucide-react";
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Avatar } from "./Avatar";
 import { FireButton } from "./FireButton";
 import { CommentsModal } from "./CommentsModal";
+import { ReportDialog } from "./ReportDialog";
 import { lookingStyle, photoGradient, timeAgo } from "@/lib/utils";
 import type { FeedPost } from "@/types/database";
 
 export function PostCard({ post, meId }: { post: FeedPost; meId: string | null }) {
   const tag = lookingStyle[post.author.looking_for];
   const [openComments, setOpenComments] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [reportOpen, setReportOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!menuOpen) return;
+    const onClick = (e: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) setMenuOpen(false);
+    };
+    document.addEventListener("mousedown", onClick);
+    return () => document.removeEventListener("mousedown", onClick);
+  }, [menuOpen]);
 
   return (
     <article style={{ borderBottom: "1px solid rgba(255,255,255,0.08)", padding: "18px 0" }}>
@@ -30,6 +43,57 @@ export function PostCard({ post, meId }: { post: FeedPost; meId: string | null }
         <span style={{ background: tag.bg, color: tag.color, fontSize: 12, fontWeight: 600, padding: "5px 11px", borderRadius: 20, flexShrink: 0 }}>
           {tag.label}
         </span>
+        {meId && meId !== post.author.id && (
+          <div ref={menuRef} style={{ position: "relative" }}>
+            <button
+              onClick={() => setMenuOpen((o) => !o)}
+              aria-label="opções"
+              style={{ background: "none", border: "none", color: "#9A9AA0", cursor: "pointer", padding: 4 }}
+            >
+              <MoreHorizontal size={18} />
+            </button>
+            {menuOpen && (
+              <div
+                style={{
+                  position: "absolute",
+                  top: "100%",
+                  right: 0,
+                  background: "#1E1C22",
+                  border: "1px solid rgba(255,255,255,0.1)",
+                  borderRadius: 10,
+                  padding: 4,
+                  minWidth: 160,
+                  boxShadow: "0 10px 24px rgba(0,0,0,0.5)",
+                  zIndex: 5
+                }}
+              >
+                <button
+                  onClick={() => {
+                    setMenuOpen(false);
+                    setReportOpen(true);
+                  }}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 8,
+                    padding: "9px 12px",
+                    width: "100%",
+                    background: "transparent",
+                    border: "none",
+                    color: "#FF6A9E",
+                    fontWeight: 600,
+                    fontSize: 13.5,
+                    cursor: "pointer",
+                    textAlign: "left",
+                    borderRadius: 6
+                  }}
+                >
+                  <Flag size={14} /> Denunciar post
+                </button>
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
       <div style={{ margin: "0 18px", borderRadius: 18, border: "1px solid rgba(255,255,255,0.08)", overflow: "hidden", background: photoGradient(post.id) }}>
@@ -84,6 +148,15 @@ export function PostCard({ post, meId }: { post: FeedPost; meId: string | null }
           postId={post.id}
           meId={meId}
           onClose={() => setOpenComments(false)}
+        />
+      )}
+
+      {reportOpen && (
+        <ReportDialog
+          kind="post"
+          targetId={post.id}
+          targetLabel={`o post de @${post.author.username}`}
+          onClose={() => setReportOpen(false)}
         />
       )}
     </article>
