@@ -1,6 +1,6 @@
 "use client";
 
-import { Flame, Search, Home, Trophy, User, PlusCircle } from "lucide-react";
+import { Flame, Search, Home, Trophy, User, PlusCircle, ShieldCheck } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Avatar } from "./Avatar";
@@ -85,6 +85,29 @@ export function Sidebar({ me }: { me: Profile | null }) {
       >
         <PlusCircle size={20} /> POSTAR
       </Link>
+
+      {me?.is_admin && (
+        <Link
+          href="/admin"
+          style={{
+            marginTop: 10,
+            padding: "11px 14px",
+            borderRadius: 12,
+            background: path.startsWith("/admin") ? "rgba(255,177,61,0.15)" : "rgba(255,177,61,0.06)",
+            border: "1px solid rgba(255,177,61,0.3)",
+            color: "#FFB13D",
+            fontSize: 14,
+            fontWeight: 700,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: 8,
+            textDecoration: "none"
+          }}
+        >
+          <ShieldCheck size={16} /> ADMIN
+        </Link>
+      )}
 
       {me && (
         <Link href="/perfil" style={{ marginTop: "auto", display: "flex", alignItems: "center", gap: 10, padding: 8, textDecoration: "none", color: "inherit" }}>

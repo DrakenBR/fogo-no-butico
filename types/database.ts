@@ -28,8 +28,40 @@ export interface Profile {
   looking_for: LookingFor;
   avatar_url: string | null;
   verified: boolean;
+  is_admin: boolean;
   links: ProfileLink[];
   created_at: string;
+}
+
+export interface AdminUserRow {
+  id: string;
+  email: string;
+  username: string;
+  display_name: string;
+  avatar_url: string | null;
+  city: string | null;
+  looking_for: LookingFor;
+  is_admin: boolean;
+  created_at: string;
+  last_sign_in_at: string | null;
+  posts_count: number;
+  fires_count: number;
+}
+
+export interface AdminKpis {
+  users_total: number;
+  users_last_24h: number;
+  users_last_7d: number;
+  active_users_24h: number;
+  admins_total: number;
+  posts_total: number;
+  posts_last_24h: number;
+  fires_total: number;
+  fires_last_24h: number;
+  comments_total: number;
+  comments_last_24h: number;
+  stories_active: number;
+  stories_total: number;
 }
 
 export interface Post {
