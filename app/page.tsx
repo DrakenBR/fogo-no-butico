@@ -17,7 +17,7 @@ export default async function HomePage() {
   ]);
 
   return (
-    <AppShell right={<RankingPanel rows={rankingData.rows} myPosition={rankingData.myPosition} compact />}>
+    <AppShell right={<RankingPanel rows={rankingData.rows} myPosition={rankingData.myPosition} />}>
       <Fogueira groups={groups} meId={meId} />
 
       {posts.length === 0 ? (

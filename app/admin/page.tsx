@@ -21,7 +21,7 @@ export default async function AdminPage() {
   const k = (kpisRaw ?? {}) as AdminKpis;
 
   return (
-    <AppShell>
+    <AppShell wide>
       <div style={{ padding: 22 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 6 }}>
           <ShieldCheck size={26} color="#FFB13D" />

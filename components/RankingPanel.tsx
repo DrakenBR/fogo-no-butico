@@ -5,12 +5,10 @@ import type { WeeklyRankingRow } from "@/types/database";
 
 export function RankingPanel({
   rows,
-  myPosition,
-  compact = false
+  myPosition
 }: {
   rows: WeeklyRankingRow[];
   myPosition?: number | null;
-  compact?: boolean;
 }) {
   return (
     <div
@@ -33,7 +31,7 @@ export function RankingPanel({
         </div>
       )}
 
-      {rows.slice(0, compact ? 5 : 20).map((r, i) => (
+      {rows.map((r, i) => (
         <Link
           key={r.user_id}
           href={`/perfil/${r.username}`}
@@ -42,7 +40,7 @@ export function RankingPanel({
             alignItems: "center",
             gap: 12,
             padding: "9px 0",
-            borderBottom: i < Math.min(rows.length, compact ? 5 : 20) - 1 ? "1px solid rgba(255,255,255,0.08)" : "none",
+            borderBottom: i < rows.length - 1 ? "1px solid rgba(255,255,255,0.08)" : "none",
             textDecoration: "none",
             color: "inherit"
           }}

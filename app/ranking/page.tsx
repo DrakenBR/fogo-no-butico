@@ -1,5 +1,4 @@
 import { AppShell } from "@/components/AppShell";
-import { RankingPanel } from "@/components/RankingPanel";
 import { createClient } from "@/lib/supabase/server";
 import { Avatar } from "@/components/Avatar";
 import { Flame } from "lucide-react";
@@ -22,7 +21,7 @@ export default async function RankingPage() {
   const rest = rows.slice(3);
 
   return (
-    <AppShell right={<RankingPanel rows={rows} myPosition={myPosition} compact />}>
+    <AppShell>
       <div style={{ padding: 22 }}>
         <h1 className="display" style={{ fontSize: 28, marginBottom: 4 }}>
           MAIS <span className="fire-text">QUENTE</span> DA SEMANA

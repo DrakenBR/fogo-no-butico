@@ -7,10 +7,13 @@ import type { Profile } from "@/types/database";
 
 export async function AppShell({
   children,
-  right
+  right,
+  wide = false
 }: {
   children: React.ReactNode;
   right?: React.ReactNode;
+  /** Quando true (admin), o center se expande até 1200px e ignora o right aside */
+  wide?: boolean;
 }) {
   const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();
@@ -20,15 +23,17 @@ export async function AppShell({
     me = data ?? null;
   }
 
+  const mainMaxWidth = wide ? 1200 : 632;
+  const showRight = !wide && !!right;
+
   return (
-    <div style={{ display: "flex", minHeight: "100vh" }}>
+    <div style={{ display: "flex", minHeight: "100vh", justifyContent: "center" }}>
       <Sidebar me={me} />
 
       <main
         style={{
           flex: 1,
-          maxWidth: 600,
-          margin: "0 auto",
+          maxWidth: mainMaxWidth,
           padding: "0 0 90px",
           borderRight: "1px solid rgba(255,255,255,0.08)",
           borderLeft: "1px solid rgba(255,255,255,0.08)",
@@ -60,20 +65,23 @@ export async function AppShell({
         {children}
       </main>
 
-      <aside
-        className="hidden lg:block"
-        style={{
-          width: 320,
-          padding: "26px 20px",
-          position: "sticky",
-          top: 0,
-          height: "100vh",
-          overflowY: "auto",
-          flexShrink: 0
-        }}
-      >
-        {right}
-      </aside>
+      {showRight && (
+        <aside
+          className="hidden lg:flex"
+          style={{
+            width: 360,
+            padding: "20px 18px 28px",
+            position: "sticky",
+            top: 0,
+            height: "100vh",
+            overflowY: "auto",
+            flexShrink: 0,
+            flexDirection: "column"
+          }}
+        >
+          {right}
+        </aside>
+      )}
 
       <BottomNav />
     </div>
