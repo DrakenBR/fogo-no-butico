@@ -186,7 +186,7 @@ export interface Message {
 }
 
 export interface SearchProfileRow {
-  id: string;
+  user_id: string;
   username: string;
   display_name: string;
   avatar_url: string | null;
