@@ -1,5 +1,6 @@
 import { Sidebar } from "./Sidebar";
 import { BottomNav } from "./BottomNav";
+import { MobileMenuDrawer } from "./MobileMenuDrawer";
 import { Flame } from "lucide-react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
@@ -106,7 +107,7 @@ export async function AppShell({
         </aside>
       )}
 
-      <BottomNav />
+      <BottomNav unreadNotifs={unreadNotifs} unreadMessages={unreadMessages} />
     </div>
   );
 }
