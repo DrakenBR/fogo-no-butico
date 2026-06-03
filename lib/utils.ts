@@ -48,6 +48,50 @@ export function photoGradient(seed: string | null | undefined): string {
   return gradients[h % gradients.length];
 }
 
+// ============================================================
+// Filtros de imagem (Instagram-like)
+// ============================================================
+export type FilterPreset =
+  | "original"
+  | "clarendon"
+  | "gingham"
+  | "juno"
+  | "lark"
+  | "moon"
+  | "valencia"
+  | "willow";
+
+export const FILTER_PRESETS: Record<FilterPreset, string> = {
+  original: "none",
+  clarendon: "contrast(1.2) saturate(1.35) brightness(1.05)",
+  gingham: "brightness(1.05) hue-rotate(-10deg) saturate(0.85)",
+  juno: "contrast(1.15) saturate(1.4) hue-rotate(-8deg)",
+  lark: "contrast(0.9) brightness(1.1) saturate(1.1)",
+  moon: "grayscale(1) brightness(1.1) contrast(1.1)",
+  valencia: "sepia(0.15) brightness(1.05) saturate(1.2)",
+  willow: "grayscale(0.5) brightness(1.05) contrast(0.95)"
+};
+
+/** Aplica o filtro CSS num canvas e devolve o blob comprimido */
+export async function applyFilter(file: File, preset: FilterPreset): Promise<Blob> {
+  if (preset === "original") return file;
+  const bitmap = await createImageBitmap(file);
+  const maxDim = 1600;
+  const ratio = Math.min(1, maxDim / Math.max(bitmap.width, bitmap.height));
+  const w = Math.round(bitmap.width * ratio);
+  const h = Math.round(bitmap.height * ratio);
+  const canvas = document.createElement("canvas");
+  canvas.width = w;
+  canvas.height = h;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return file;
+  ctx.filter = FILTER_PRESETS[preset];
+  ctx.drawImage(bitmap, 0, 0, w, h);
+  return await new Promise<Blob>((resolve) =>
+    canvas.toBlob((b) => resolve(b ?? file), "image/jpeg", 0.85)
+  );
+}
+
 export async function compressImage(file: File, maxDim = 1600, quality = 0.82): Promise<Blob> {
   if (!file.type.startsWith("image/")) return file;
   const bitmap = await createImageBitmap(file);

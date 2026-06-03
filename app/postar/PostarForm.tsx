@@ -1,85 +1,124 @@
 "use client";
 
-import { Flame, ImagePlus, X, Music, Vote, Plus, Trash2 } from "lucide-react";
+import { Flame, ImagePlus, X, Music, Vote, Plus, Trash2, Clock, Sparkles, ChevronLeft, ChevronRight } from "lucide-react";
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import { compressImage } from "@/lib/utils";
+import { applyFilter, compressImage, type FilterPreset, FILTER_PRESETS } from "@/lib/utils";
 
 type Tab = "post" | "story";
+
+interface MediaSlot {
+  file: File;
+  previewUrl: string;
+  filter: FilterPreset;
+  filteredBlob?: Blob;
+}
+
+const SCHEDULE_OPTIONS = [
+  { label: "Agora", hours: 0 },
+  { label: "+1h", hours: 1 },
+  { label: "+6h", hours: 6 },
+  { label: "+24h", hours: 24 },
+  { label: "+3 dias", hours: 72 }
+];
 
 export function PostarForm({ userId, initialTab }: { userId: string; initialTab: Tab }) {
   const router = useRouter();
   const [tab, setTab] = useState<Tab>(initialTab);
-  const [file, setFile] = useState<File | null>(null);
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [slots, setSlots] = useState<MediaSlot[]>([]);
+  const [currentSlot, setCurrentSlot] = useState(0);
   const [caption, setCaption] = useState("");
   const [pending, start] = useTransition();
   const [err, setErr] = useState<string | null>(null);
 
-  // ENQUETE (só pra post)
+  // ENQUETE
   const [hasPoll, setHasPoll] = useState(false);
   const [pollQuestion, setPollQuestion] = useState("");
   const [pollOptions, setPollOptions] = useState<string[]>(["", ""]);
 
-  // ÁUDIO (só pra story)
+  // ÁUDIO STORY
   const [audioFile, setAudioFile] = useState<File | null>(null);
 
-  const onPick = (f: File | null) => {
-    setErr(null);
-    setFile(f);
-    if (previewUrl) URL.revokeObjectURL(previewUrl);
-    setPreviewUrl(f ? URL.createObjectURL(f) : null);
+  // AGENDAMENTO
+  const [scheduleH, setScheduleH] = useState(0);
+
+  const MAX_SLOTS = tab === "post" ? 6 : 1;
+
+  const addFiles = (files: FileList | null) => {
+    if (!files) return;
+    const arr = Array.from(files).slice(0, MAX_SLOTS - slots.length);
+    const next: MediaSlot[] = arr.map((file) => ({
+      file,
+      previewUrl: URL.createObjectURL(file),
+      filter: "original"
+    }));
+    setSlots((s) => [...s, ...next]);
   };
 
-  const isVideo = file?.type.startsWith("video/");
+  const removeSlot = (idx: number) => {
+    URL.revokeObjectURL(slots[idx].previewUrl);
+    setSlots((s) => s.filter((_, i) => i !== idx));
+    setCurrentSlot((c) => Math.max(0, Math.min(c, slots.length - 2)));
+  };
+
+  const setFilter = async (idx: number, filter: FilterPreset) => {
+    const slot = slots[idx];
+    if (slot.file.type.startsWith("video/")) return;
+    const filtered = filter === "original" ? undefined : await applyFilter(slot.file, filter);
+    setSlots((s) => s.map((sl, i) => (i === idx ? { ...sl, filter, filteredBlob: filtered } : sl)));
+  };
+
+  const cur = slots[currentSlot];
+  const isVideo = cur?.file.type.startsWith("video/");
 
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!file) {
-      setErr("Escolhe uma mídia");
+    if (slots.length === 0) {
+      setErr("Escolhe pelo menos uma mídia");
       return;
     }
-    // valida poll
     let pollPayload: { question: string; options: string[] } | null = null;
     if (tab === "post" && hasPoll) {
       const q = pollQuestion.trim();
       const opts = pollOptions.map((o) => o.trim()).filter(Boolean);
-      if (!q) {
-        setErr("Põe a pergunta da enquete");
-        return;
-      }
-      if (opts.length < 2) {
-        setErr("Enquete precisa de pelo menos 2 opções");
-        return;
-      }
+      if (!q) return setErr("Põe a pergunta da enquete");
+      if (opts.length < 2) return setErr("Enquete precisa de pelo menos 2 opções");
       pollPayload = { question: q.slice(0, 200), options: opts.slice(0, 4) };
     }
 
     start(async () => {
       const supabase = createClient();
 
-      // upload mídia principal
-      let upload: Blob = file;
-      let contentType = file.type;
-      let ext = file.name.split(".").pop() ?? "bin";
-      if (file.type.startsWith("image/")) {
-        upload = await compressImage(file, 1600, 0.85);
-        contentType = "image/jpeg";
-        ext = "jpg";
+      // upload todas as mídias
+      const urls: string[] = [];
+      const types: ("photo" | "video")[] = [];
+      for (let i = 0; i < slots.length; i++) {
+        const slot = slots[i];
+        let upload: Blob = slot.filteredBlob ?? slot.file;
+        let contentType = slot.file.type;
+        let ext = slot.file.name.split(".").pop() ?? "bin";
+        if (slot.file.type.startsWith("image/") && !slot.filteredBlob) {
+          upload = await compressImage(slot.file, 1600, 0.85);
+          contentType = "image/jpeg";
+          ext = "jpg";
+        } else if (slot.filteredBlob) {
+          contentType = "image/jpeg";
+          ext = "jpg";
+        }
+        const path = `${userId}/${tab}-${Date.now()}-${i}.${ext}`;
+        const { error: upErr } = await supabase.storage
+          .from("media")
+          .upload(path, upload, { contentType, upsert: false });
+        if (upErr) {
+          setErr(`Upload ${i + 1}: ${upErr.message}`);
+          return;
+        }
+        urls.push(supabase.storage.from("media").getPublicUrl(path).data.publicUrl);
+        types.push(slot.file.type.startsWith("video/") ? "video" : "photo");
       }
 
-      const path = `${userId}/${tab}-${Date.now()}.${ext}`;
-      const { error: upErr } = await supabase.storage
-        .from("media")
-        .upload(path, upload, { contentType, upsert: false });
-      if (upErr) {
-        setErr(`Upload falhou: ${upErr.message}`);
-        return;
-      }
-      const publicUrl = supabase.storage.from("media").getPublicUrl(path).data.publicUrl;
-
-      // upload áudio se for story e tiver
+      // áudio (só story)
       let audioUrl: string | null = null;
       if (tab === "story" && audioFile) {
         if (audioFile.size > 5 * 1024 * 1024) {
@@ -99,24 +138,28 @@ export function PostarForm({ userId, initialTab }: { userId: string; initialTab:
       }
 
       if (tab === "post") {
+        const scheduledFor = scheduleH > 0 ? new Date(Date.now() + scheduleH * 3600 * 1000).toISOString() : null;
         const { error: insErr } = await supabase.from("posts").insert({
           user_id: userId,
-          media_url: publicUrl,
-          media_type: file.type.startsWith("video/") ? "video" : "photo",
+          media_url: urls[0],
+          media_type: types[0],
+          media_urls: urls.length > 1 ? urls : null,
+          media_types: urls.length > 1 ? types : null,
           caption: caption.trim() || null,
-          poll: pollPayload
+          poll: pollPayload,
+          scheduled_for: scheduledFor
         });
         if (insErr) {
           setErr(insErr.message);
           return;
         }
-        router.push("/");
+        router.push(scheduledFor ? `/perfil` : "/");
         router.refresh();
       } else {
         const { error: insErr } = await supabase.from("stories").insert({
           user_id: userId,
-          media_url: publicUrl,
-          media_type: file.type.startsWith("video/") ? "video" : "photo",
+          media_url: urls[0],
+          media_type: types[0],
           caption: caption.trim() || null,
           audio_url: audioUrl
         });
@@ -130,6 +173,8 @@ export function PostarForm({ userId, initialTab }: { userId: string; initialTab:
     });
   };
 
+  const filterCss = cur ? FILTER_PRESETS[cur.filter] : "none";
+
   return (
     <form onSubmit={submit} style={{ display: "flex", flexDirection: "column", gap: 14 }}>
       <div style={{ display: "flex", gap: 6, background: "#161519", padding: 4, borderRadius: 12, border: "1px solid rgba(255,255,255,0.08)" }}>
@@ -137,7 +182,11 @@ export function PostarForm({ userId, initialTab }: { userId: string; initialTab:
           <button
             key={t}
             type="button"
-            onClick={() => setTab(t)}
+            onClick={() => {
+              setTab(t);
+              // limita slot 0 se mudou de post pra story
+              if (t === "story" && slots.length > 1) setSlots((s) => s.slice(0, 1));
+            }}
             style={{
               flex: 1,
               padding: "10px 0",
@@ -158,64 +207,111 @@ export function PostarForm({ userId, initialTab }: { userId: string; initialTab:
       <label
         style={{
           aspectRatio: tab === "story" ? "9/16" : "4/5",
-          background: previewUrl ? "#000" : "#161519",
+          background: cur ? "#000" : "#161519",
           border: "1px dashed rgba(255,255,255,0.15)",
           borderRadius: 18,
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          cursor: "pointer",
+          cursor: cur ? "default" : "pointer",
           overflow: "hidden",
           position: "relative"
         }}
+        onClick={(e) => {
+          // só abre file picker se NÃO houver mídia ainda
+          if (cur) e.preventDefault();
+        }}
       >
-        {!previewUrl && (
+        {!cur && (
           <div style={{ textAlign: "center", color: "#9A9AA0" }}>
             <ImagePlus size={42} style={{ margin: "0 auto 8px" }} />
             <div style={{ fontWeight: 600 }}>Toque pra escolher</div>
-            <div style={{ fontSize: 12, marginTop: 4 }}>foto ou vídeo</div>
+            <div style={{ fontSize: 12, marginTop: 4 }}>{tab === "post" ? "foto ou vídeo (até 6)" : "foto ou vídeo"}</div>
           </div>
         )}
-        {previewUrl && isVideo && (
-          <video src={previewUrl} controls playsInline style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+        {cur && isVideo && (
+          <video src={cur.previewUrl} controls playsInline style={{ width: "100%", height: "100%", objectFit: "cover" }} />
         )}
-        {previewUrl && !isVideo && (
+        {cur && !isVideo && (
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={previewUrl} alt="preview" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+          <img src={cur.filteredBlob ? URL.createObjectURL(cur.filteredBlob) : cur.previewUrl} alt="preview" style={{ width: "100%", height: "100%", objectFit: "cover", filter: cur.filteredBlob ? "none" : filterCss }} />
         )}
-        {previewUrl && (
+
+        {/* slot nav */}
+        {slots.length > 1 && (
+          <>
+            <div style={{ position: "absolute", top: 10, left: 10, background: "rgba(0,0,0,0.6)", color: "#fff", padding: "3px 9px", borderRadius: 999, fontSize: 12, fontWeight: 700 }}>
+              {currentSlot + 1}/{slots.length}
+            </div>
+            {currentSlot > 0 && (
+              <button type="button" onClick={() => setCurrentSlot(currentSlot - 1)} style={slotNav("left")}><ChevronLeft size={18} /></button>
+            )}
+            {currentSlot < slots.length - 1 && (
+              <button type="button" onClick={() => setCurrentSlot(currentSlot + 1)} style={slotNav("right")}><ChevronRight size={18} /></button>
+            )}
+          </>
+        )}
+
+        {cur && (
           <button
             type="button"
             onClick={(e) => {
               e.preventDefault();
-              onPick(null);
+              removeSlot(currentSlot);
             }}
-            style={{
-              position: "absolute",
-              top: 10,
-              right: 10,
-              background: "rgba(0,0,0,0.6)",
-              border: "none",
-              borderRadius: "50%",
-              width: 32,
-              height: 32,
-              cursor: "pointer",
-              color: "#fff",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center"
-            }}
+            style={{ position: "absolute", top: 10, right: 10, background: "rgba(0,0,0,0.6)", border: "none", borderRadius: "50%", width: 32, height: 32, cursor: "pointer", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center" }}
           >
             <X size={18} />
           </button>
         )}
+
         <input
           type="file"
           accept="image/*,video/*"
-          onChange={(e) => onPick(e.target.files?.[0] ?? null)}
+          multiple={tab === "post"}
+          onChange={(e) => addFiles(e.target.files)}
           style={{ display: "none" }}
         />
       </label>
+
+      {/* filtros + adicionar mais */}
+      {cur && (
+        <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+          {!isVideo && (
+            <div className="no-scrollbar" style={{ display: "flex", gap: 6, overflowX: "auto", flex: 1 }}>
+              {(Object.keys(FILTER_PRESETS) as FilterPreset[]).map((f) => (
+                <button
+                  key={f}
+                  type="button"
+                  onClick={() => setFilter(currentSlot, f)}
+                  style={{
+                    padding: "6px 12px",
+                    borderRadius: 999,
+                    background: cur.filter === f ? "rgba(255,27,107,0.15)" : "#161519",
+                    border: cur.filter === f ? "1px solid #FF1B6B" : "1px solid rgba(255,255,255,0.08)",
+                    color: cur.filter === f ? "#FF1B6B" : "#F5F5F7",
+                    cursor: "pointer",
+                    fontSize: 12,
+                    fontWeight: 600,
+                    whiteSpace: "nowrap",
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: 4
+                  }}
+                >
+                  {f === "original" ? "Sem filtro" : (<><Sparkles size={11} /> {f}</>)}
+                </button>
+              ))}
+            </div>
+          )}
+          {tab === "post" && slots.length < MAX_SLOTS && (
+            <label style={{ background: "rgba(255,27,107,0.1)", border: "1px dashed rgba(255,27,107,0.4)", borderRadius: 999, padding: "6px 10px", color: "#FF1B6B", cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 4, fontSize: 12, fontWeight: 600 }}>
+              <Plus size={13} /> Mais
+              <input type="file" accept="image/*,video/*" multiple onChange={(e) => addFiles(e.target.files)} style={{ display: "none" }} />
+            </label>
+          )}
+        </div>
+      )}
 
       <textarea
         value={caption}
@@ -236,115 +332,80 @@ export function PostarForm({ userId, initialTab }: { userId: string; initialTab:
       />
 
       {tab === "story" && (
-        <label
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: 10,
-            padding: "11px 14px",
-            background: audioFile ? "rgba(255,177,61,0.08)" : "#161519",
-            border: audioFile ? "1px solid #FFB13D" : "1px dashed rgba(255,177,61,0.45)",
-            borderRadius: 12,
-            color: audioFile ? "#FFB13D" : "#9A9AA0",
-            cursor: "pointer",
-            fontSize: 13.5,
-            fontWeight: 600
-          }}
-        >
+        <label style={{ display: "flex", alignItems: "center", gap: 10, padding: "11px 14px", background: audioFile ? "rgba(255,177,61,0.08)" : "#161519", border: audioFile ? "1px solid #FFB13D" : "1px dashed rgba(255,177,61,0.45)", borderRadius: 12, color: audioFile ? "#FFB13D" : "#9A9AA0", cursor: "pointer", fontSize: 13.5, fontWeight: 600 }}>
           <Music size={16} />
-          {audioFile ? `Áudio: ${audioFile.name}` : "Adicionar trilha de áudio (opcional)"}
+          {audioFile ? `Áudio: ${audioFile.name}` : "Adicionar trilha (opcional)"}
           {audioFile && (
-            <button
-              type="button"
-              onClick={(e) => {
-                e.preventDefault();
-                setAudioFile(null);
-              }}
-              style={{ marginLeft: "auto", background: "transparent", border: "none", color: "#FFB13D", cursor: "pointer" }}
-            >
+            <button type="button" onClick={(e) => { e.preventDefault(); setAudioFile(null); }} style={{ marginLeft: "auto", background: "transparent", border: "none", color: "#FFB13D", cursor: "pointer" }}>
               <X size={14} />
             </button>
           )}
-          <input
-            type="file"
-            accept="audio/*"
-            onChange={(e) => setAudioFile(e.target.files?.[0] ?? null)}
-            style={{ display: "none" }}
-          />
+          <input type="file" accept="audio/*" onChange={(e) => setAudioFile(e.target.files?.[0] ?? null)} style={{ display: "none" }} />
         </label>
       )}
 
       {tab === "post" && (
-        <div style={{ background: "#161519", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 12, padding: 12 }}>
-          <label style={{ display: "flex", alignItems: "center", gap: 10, cursor: "pointer", fontSize: 14, fontWeight: 600 }}>
-            <input
-              type="checkbox"
-              checked={hasPoll}
-              onChange={(e) => setHasPoll(e.target.checked)}
-              style={{ accentColor: "#FF1B6B" }}
-            />
-            <Vote size={16} color="#FF1B6B" />
-            Adicionar enquete
-          </label>
+        <>
+          <div style={{ background: "#161519", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 12, padding: 12 }}>
+            <label style={{ display: "flex", alignItems: "center", gap: 10, cursor: "pointer", fontSize: 14, fontWeight: 600 }}>
+              <input type="checkbox" checked={hasPoll} onChange={(e) => setHasPoll(e.target.checked)} style={{ accentColor: "#FF1B6B" }} />
+              <Vote size={16} color="#FF1B6B" />
+              Adicionar enquete
+            </label>
+            {hasPoll && (
+              <div style={{ marginTop: 12, display: "flex", flexDirection: "column", gap: 8 }}>
+                <input value={pollQuestion} onChange={(e) => setPollQuestion(e.target.value)} placeholder="Pergunta da enquete" maxLength={200} style={{ background: "#1E1C22", border: "1px solid rgba(255,255,255,0.06)", borderRadius: 8, padding: "10px 12px", color: "#F5F5F7", fontSize: 14, outline: "none" }} />
+                {pollOptions.map((opt, i) => (
+                  <div key={i} style={{ display: "flex", gap: 6 }}>
+                    <input value={opt} onChange={(e) => setPollOptions(pollOptions.map((o, j) => (i === j ? e.target.value : o)))} placeholder={`Opção ${i + 1}`} maxLength={80} style={{ flex: 1, background: "#1E1C22", border: "1px solid rgba(255,255,255,0.06)", borderRadius: 8, padding: "9px 12px", color: "#F5F5F7", fontSize: 14, outline: "none" }} />
+                    {pollOptions.length > 2 && (
+                      <button type="button" onClick={() => setPollOptions(pollOptions.filter((_, j) => j !== i))} style={{ background: "transparent", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 8, color: "#9A9AA0", cursor: "pointer", padding: "0 10px" }}>
+                        <Trash2 size={14} />
+                      </button>
+                    )}
+                  </div>
+                ))}
+                {pollOptions.length < 4 && (
+                  <button type="button" onClick={() => setPollOptions([...pollOptions, ""])} style={{ background: "transparent", border: "1px dashed rgba(255,27,107,0.4)", borderRadius: 8, color: "#FF1B6B", padding: "8px", cursor: "pointer", fontWeight: 600, fontSize: 13, display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}>
+                    <Plus size={14} /> Mais uma opção
+                  </button>
+                )}
+              </div>
+            )}
+          </div>
 
-          {hasPoll && (
-            <div style={{ marginTop: 12, display: "flex", flexDirection: "column", gap: 8 }}>
-              <input
-                value={pollQuestion}
-                onChange={(e) => setPollQuestion(e.target.value)}
-                placeholder="Pergunta da enquete"
-                maxLength={200}
-                style={{
-                  background: "#1E1C22",
-                  border: "1px solid rgba(255,255,255,0.06)",
-                  borderRadius: 8,
-                  padding: "10px 12px",
-                  color: "#F5F5F7",
-                  fontSize: 14,
-                  outline: "none"
-                }}
-              />
-              {pollOptions.map((opt, i) => (
-                <div key={i} style={{ display: "flex", gap: 6 }}>
-                  <input
-                    value={opt}
-                    onChange={(e) => setPollOptions(pollOptions.map((o, j) => (i === j ? e.target.value : o)))}
-                    placeholder={`Opção ${i + 1}`}
-                    maxLength={80}
-                    style={{
-                      flex: 1,
-                      background: "#1E1C22",
-                      border: "1px solid rgba(255,255,255,0.06)",
-                      borderRadius: 8,
-                      padding: "9px 12px",
-                      color: "#F5F5F7",
-                      fontSize: 14,
-                      outline: "none"
-                    }}
-                  />
-                  {pollOptions.length > 2 && (
-                    <button
-                      type="button"
-                      onClick={() => setPollOptions(pollOptions.filter((_, j) => j !== i))}
-                      style={{ background: "transparent", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 8, color: "#9A9AA0", cursor: "pointer", padding: "0 10px" }}
-                    >
-                      <Trash2 size={14} />
-                    </button>
-                  )}
-                </div>
-              ))}
-              {pollOptions.length < 4 && (
-                <button
-                  type="button"
-                  onClick={() => setPollOptions([...pollOptions, ""])}
-                  style={{ background: "transparent", border: "1px dashed rgba(255,27,107,0.4)", borderRadius: 8, color: "#FF1B6B", padding: "8px", cursor: "pointer", fontWeight: 600, fontSize: 13, display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}
-                >
-                  <Plus size={14} /> Mais uma opção
-                </button>
-              )}
+          <div style={{ background: "#161519", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 12, padding: 12 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8, fontSize: 14, fontWeight: 600 }}>
+              <Clock size={16} color="#FFB13D" /> Quando publicar?
             </div>
-          )}
-        </div>
+            <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+              {SCHEDULE_OPTIONS.map((opt) => (
+                <button
+                  key={opt.hours}
+                  type="button"
+                  onClick={() => setScheduleH(opt.hours)}
+                  style={{
+                    padding: "6px 12px",
+                    borderRadius: 999,
+                    background: scheduleH === opt.hours ? "rgba(255,177,61,0.15)" : "#1E1C22",
+                    border: scheduleH === opt.hours ? "1px solid #FFB13D" : "1px solid rgba(255,255,255,0.06)",
+                    color: scheduleH === opt.hours ? "#FFB13D" : "#9A9AA0",
+                    fontSize: 12,
+                    fontWeight: 600,
+                    cursor: "pointer"
+                  }}
+                >
+                  {opt.label}
+                </button>
+              ))}
+            </div>
+            {scheduleH > 0 && (
+              <div style={{ color: "#FFB13D", fontSize: 12, marginTop: 8 }}>
+                Vai publicar em {new Date(Date.now() + scheduleH * 3600 * 1000).toLocaleString("pt-BR")}
+              </div>
+            )}
+          </div>
+        </>
       )}
 
       {err && <div style={{ color: "#FF6A9E", fontSize: 13.5, textAlign: "center" }}>{err}</div>}
@@ -353,24 +414,30 @@ export function PostarForm({ userId, initialTab }: { userId: string; initialTab:
         type="submit"
         disabled={pending}
         className="fire-bg display"
-        style={{
-          padding: 14,
-          borderRadius: 14,
-          border: "none",
-          cursor: pending ? "not-allowed" : "pointer",
-          color: "#fff",
-          fontSize: 17,
-          letterSpacing: 1,
-          opacity: pending ? 0.7 : 1,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          gap: 8
-        }}
+        style={{ padding: 14, borderRadius: 14, border: "none", cursor: pending ? "not-allowed" : "pointer", color: "#fff", fontSize: 17, letterSpacing: 1, opacity: pending ? 0.7 : 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}
       >
         <Flame size={20} />
-        {pending ? "BOTANDO FOGO..." : tab === "post" ? "POSTAR" : "ACENDER FOGUEIRA"}
+        {pending ? "BOTANDO FOGO..." : scheduleH > 0 ? "AGENDAR" : tab === "post" ? "POSTAR" : "ACENDER FOGUEIRA"}
       </button>
     </form>
   );
+}
+
+function slotNav(side: "left" | "right"): React.CSSProperties {
+  return {
+    position: "absolute",
+    top: "50%",
+    transform: "translateY(-50%)",
+    [side]: 8,
+    background: "rgba(0,0,0,0.6)",
+    border: "none",
+    borderRadius: "50%",
+    width: 32,
+    height: 32,
+    color: "#fff",
+    cursor: "pointer",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center"
+  };
 }

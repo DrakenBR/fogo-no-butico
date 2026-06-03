@@ -2,14 +2,31 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { Pencil, LogOut, User } from "lucide-react";
+import { Pencil, LogOut, User, Bookmark, Sun, Moon } from "lucide-react";
 import { Avatar } from "./Avatar";
 import { logout } from "@/app/login/actions";
+import { createClient } from "@/lib/supabase/client";
 import type { Profile } from "@/types/database";
 
 export function SidebarUserMenu({ me }: { me: Profile }) {
   const [open, setOpen] = useState(false);
+  const [theme, setTheme] = useState<"dark" | "light">(me.theme ?? "dark");
   const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const stored = typeof window !== "undefined" ? localStorage.getItem("theme") : null;
+    if (stored === "light" || stored === "dark") setTheme(stored);
+  }, []);
+
+  const toggleTheme = async () => {
+    const next = theme === "dark" ? "light" : "dark";
+    setTheme(next);
+    document.documentElement.dataset.theme = next;
+    localStorage.setItem("theme", next);
+    // persiste no banco (não bloqueia UI)
+    const supabase = createClient();
+    await supabase.from("profiles").update({ theme: next }).eq("id", me.id);
+  };
 
   useEffect(() => {
     if (!open) return;
@@ -89,6 +106,22 @@ export function SidebarUserMenu({ me }: { me: Profile }) {
           >
             <Pencil size={16} /> Editar perfil
           </Link>
+          <Link
+            href="/salvos"
+            onClick={() => setOpen(false)}
+            role="menuitem"
+            style={item}
+          >
+            <Bookmark size={16} /> Salvos
+          </Link>
+          <button
+            onClick={toggleTheme}
+            role="menuitem"
+            style={{ ...item, background: "transparent", border: "none", width: "100%", cursor: "pointer" }}
+          >
+            {theme === "dark" ? <Sun size={16} /> : <Moon size={16} />}
+            Tema {theme === "dark" ? "claro" : "escuro"}
+          </button>
           <div style={{ height: 1, background: "rgba(255,255,255,0.08)", margin: "4px 6px" }} />
           <form action={logout} style={{ margin: 0 }}>
             <button

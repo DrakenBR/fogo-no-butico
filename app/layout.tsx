@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
+import { PwaRegister } from "@/components/PwaRegister";
 
 export const metadata: Metadata = {
   title: "Fogo no Butico",
@@ -16,7 +17,10 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="pt-BR">
-      <body className="bg-bg text-text min-h-screen">{children}</body>
+      <body className="bg-bg text-text min-h-screen">
+        <PwaRegister />
+        {children}
+      </body>
     </html>
   );
 }

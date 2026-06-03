@@ -1,10 +1,11 @@
 "use client";
 
-import { X, Bookmark, BookmarkCheck, Volume2, VolumeX } from "lucide-react";
+import { X, Bookmark, BookmarkCheck, Volume2, VolumeX, Eye } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { Avatar } from "./Avatar";
 import { timeAgo } from "@/lib/utils";
 import { createClient } from "@/lib/supabase/client";
+import { StoryViewersDialog } from "./StoryViewersDialog";
 import type { StoryGroup } from "@/types/database";
 
 const STORY_DURATION = 5000;
@@ -27,6 +28,7 @@ export function StoryViewer({
   const [progress, setProgress] = useState(0);
   const [muted, setMuted] = useState(false);
   const [highlightOpen, setHighlightOpen] = useState(false);
+  const [viewersOpen, setViewersOpen] = useState(false);
   const audioRef = useRef<HTMLAudioElement>(null);
 
   const group = groups[gi];
@@ -161,6 +163,16 @@ export function StoryViewer({
             </button>
           )}
 
+          {isMine && (
+            <button
+              onClick={() => setViewersOpen(true)}
+              style={{ background: "rgba(0,0,0,0.3)", border: "none", borderRadius: "50%", width: 30, height: 30, color: "#fff", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}
+              title="Quem viu"
+            >
+              <Eye size={15} />
+            </button>
+          )}
+
           <button
             onClick={onClose}
             style={{ background: "none", border: "none", cursor: "pointer", color: "#fff", padding: 4 }}
@@ -211,6 +223,9 @@ export function StoryViewer({
           />
         )}
       </div>
+      {viewersOpen && isMine && (
+        <StoryViewersDialog storyId={story.id} onClose={() => setViewersOpen(false)} />
+      )}
     </div>
   );
 }

@@ -18,6 +18,8 @@ export const LINK_TYPES: { id: LinkType; label: string; color: string }[] = [
   { id: "discord",   label: "Discord",     color: "#5865F2" }
 ];
 
+export type Theme = "dark" | "light";
+
 export interface Profile {
   id: string;
   username: string;
@@ -29,8 +31,17 @@ export interface Profile {
   avatar_url: string | null;
   verified: boolean;
   is_admin: boolean;
+  theme: Theme;
   links: ProfileLink[];
   created_at: string;
+}
+
+export interface StoryViewer {
+  user_id: string;
+  username: string;
+  display_name: string;
+  avatar_url: string | null;
+  viewed_at: string;
 }
 
 export interface AdminUserRow {
@@ -77,6 +88,10 @@ export interface Post {
   media_type: MediaType;
   caption: string | null;
   created_at: string;
+  edited_at: string | null;
+  scheduled_for: string | null;
+  media_urls: string[] | null;
+  media_types: MediaType[] | null;
   original_post_id: string | null;
   poll: Poll | null;
 }
@@ -265,12 +280,15 @@ export interface FeedPost extends Post {
   fires: number;
   comments_count: number;
   liked_by_me: boolean;
+  saved_by_me: boolean;
   /** Quando esse post é um repost, info do post original com o autor */
   original?: {
     id: string;
     media_url: string;
     media_type: MediaType;
     caption: string | null;
+    media_urls?: string[] | null;
+    media_types?: MediaType[] | null;
     author: {
       username: string;
       display_name: string;

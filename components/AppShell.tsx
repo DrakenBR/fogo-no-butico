@@ -1,5 +1,6 @@
 import { Sidebar } from "./Sidebar";
 import { BottomNav } from "./BottomNav";
+import { ThemeApplier } from "./ThemeApplier";
 import { Flame } from "lucide-react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
@@ -41,6 +42,7 @@ export async function AppShell({
 
   return (
     <div style={{ display: "flex", minHeight: "100vh", width: "100%" }}>
+      <ThemeApplier initial={(me?.theme as "dark" | "light") ?? "dark"} />
       <Sidebar me={me} unreadNotifs={unreadNotifs} unreadMessages={unreadMessages} unrevealedCrushers={unrevealedCrushers} />
 
       <main

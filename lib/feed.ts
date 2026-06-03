@@ -14,10 +14,12 @@ export async function getFeed(
     .from("posts")
     .select(
       `
-      id, user_id, media_url, media_type, caption, created_at, original_post_id, poll,
+      id, user_id, media_url, media_type, caption, created_at, edited_at, scheduled_for,
+      media_urls, media_types, original_post_id, poll,
       author:profiles!posts_user_id_fkey(id, username, display_name, avatar_url, city, looking_for),
       reactions(user_id),
-      comments(count)
+      comments(count),
+      saved_posts(user_id)
     `
     )
     .order("created_at", { ascending: false })
@@ -39,7 +41,7 @@ export async function getFeed(
   if (originalIds.length > 0) {
     const { data: originals } = await supabase
       .from("posts")
-      .select("id, media_url, media_type, caption, author:profiles!posts_user_id_fkey(username, display_name, avatar_url)")
+      .select("id, media_url, media_type, caption, media_urls, media_types, author:profiles!posts_user_id_fkey(username, display_name, avatar_url)")
       .in("id", originalIds);
     if (originals) {
       originalsMap = Object.fromEntries(originals.map((o: any) => [o.id, o]));
@@ -49,6 +51,7 @@ export async function getFeed(
   const result: FeedPost[] = posts.map((p: any) => {
     const reacts: Array<{ user_id: string }> = p.reactions ?? [];
     const commentsCount: number = p.comments?.[0]?.count ?? 0;
+    const saved: Array<{ user_id: string }> = p.saved_posts ?? [];
     return {
       id: p.id,
       user_id: p.user_id,
@@ -56,13 +59,18 @@ export async function getFeed(
       media_type: p.media_type,
       caption: p.caption,
       created_at: p.created_at,
+      edited_at: p.edited_at ?? null,
+      scheduled_for: p.scheduled_for ?? null,
+      media_urls: p.media_urls ?? null,
+      media_types: p.media_types ?? null,
       original_post_id: p.original_post_id ?? null,
       poll: p.poll ?? null,
       author: p.author,
       original: p.original_post_id ? originalsMap[p.original_post_id] ?? null : null,
       fires: reacts.length,
       comments_count: commentsCount,
-      liked_by_me: meId ? reacts.some((r) => r.user_id === meId) : false
+      liked_by_me: meId ? reacts.some((r) => r.user_id === meId) : false,
+      saved_by_me: meId ? saved.some((r) => r.user_id === meId) : false
     };
   });
 

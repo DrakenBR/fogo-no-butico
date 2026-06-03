@@ -1,11 +1,12 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { Plus, Trash2, MapPin } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { Avatar } from "@/components/Avatar";
 import { LinkIcon } from "@/components/LinkIcon";
+import { PushNotificationsButton } from "@/components/PushNotificationsButton";
 import { compressImage, slugify } from "@/lib/utils";
 import { LINK_TYPES, type LinkType, type LookingFor, type ProfileLink } from "@/types/database";
 
@@ -234,6 +235,10 @@ export function OnboardingForm({
         </div>
       </Field>
 
+      <Field label="Notificações push">
+        <ClientPushBtn />
+      </Field>
+
       <Field label="Localização (pra busca por raio)">
         <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
           {geoStatus === "ok" && lat !== null && lng !== null ? (
@@ -378,6 +383,19 @@ function placeholderFor(t: LinkType): string {
     case "twitch": return "https://twitch.tv/canal";
     case "discord": return "https://discord.gg/convite";
   }
+}
+
+function ClientPushBtn() {
+  const [userId, setUserId] = useState<string | null>(null);
+  useEffect(() => {
+    const supabase = createClient();
+    (async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      setUserId(user?.id ?? null);
+    })();
+  }, []);
+  if (!userId) return null;
+  return <PushNotificationsButton userId={userId} />;
 }
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
