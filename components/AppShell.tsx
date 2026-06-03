@@ -81,11 +81,11 @@ export async function AppShell({
           className="hidden lg:flex"
           style={{
             width: 380,
-            padding: "20px 18px 28px",
+            padding: "20px 18px 20px",
             position: "sticky",
             top: 0,
             height: "100vh",
-            overflowY: "auto",
+            overflow: "hidden",
             flexShrink: 0,
             flexDirection: "column",
             borderLeft: "1px solid rgba(255,255,255,0.08)"
