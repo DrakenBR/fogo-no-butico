@@ -15,8 +15,8 @@ export default function OG() {
           flexDirection: "column",
           alignItems: "center",
           justifyContent: "center",
-          background: "var(--bg)",
-          color: "var(--text)",
+          background: "#0D0D0F",
+          color: "#F5F5F7",
           padding: 80,
           fontFamily: "sans-serif"
         }}
@@ -40,7 +40,7 @@ export default function OG() {
         <div style={{ display: "flex", fontSize: 110, fontWeight: 900, letterSpacing: -2, lineHeight: 1 }}>
           FOGO NO <span style={{ color: "#FF1B6B", marginLeft: 22 }}>BUTICO</span>
         </div>
-        <div style={{ display: "flex", marginTop: 24, fontSize: 36, color: "var(--text-muted)" }}>
+        <div style={{ display: "flex", marginTop: 24, fontSize: 36, color: "#9A9AA0" }}>
           Bota fogo no butico 🔥
         </div>
       </div>

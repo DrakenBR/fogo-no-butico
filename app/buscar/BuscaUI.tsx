@@ -124,12 +124,12 @@ export function BuscaUI() {
       </div>
 
       {hasLocation === false && (
-        <div style={{ background: "rgba(255,177,61,0.1)", border: "1px solid rgba(255,177,61,0.3)", borderRadius: 12, padding: 12, fontSize: 13, color: "#FFB13D", marginBottom: 14, display: "flex", alignItems: "center", gap: 8 }}>
-          <MapPin size={15} />
+        <div style={{ background: "rgba(255,177,61,0.08)", border: "1px solid rgba(255,177,61,0.25)", borderRadius: 12, padding: "10px 12px", fontSize: 12.5, color: "var(--text-muted)", marginBottom: 14, display: "flex", alignItems: "center", gap: 8 }}>
+          <MapPin size={14} color="#FFB13D" />
           <span>
-            Pra filtrar por distância,{" "}
+            <span style={{ color: "var(--text)" }}>Opcional:</span> pra filtrar por raio,{" "}
             <Link href="/onboarding" style={{ color: "#FFB13D", fontWeight: 700, textDecoration: "underline" }}>
-              ativa tua localização no perfil
+              ativa tua localização
             </Link>
           </span>
         </div>
@@ -187,7 +187,7 @@ export function BuscaUI() {
           const tag = lookingStyle[p.looking_for];
           return (
             <Link
-              key={p.id}
+              key={p.user_id}
               href={`/perfil/${p.username}`}
               style={{
                 display: "flex",
