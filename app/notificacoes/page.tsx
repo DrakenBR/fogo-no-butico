@@ -17,7 +17,7 @@ export default async function NotificacoesPage() {
     .select(`
       id, kind, post_id, comment_id, read_at, created_at,
       actor:profiles!notifications_actor_id_fkey(id, username, display_name, avatar_url),
-      post:posts!notifications_post_id_fkey(id, media_url, caption),
+      post:posts!notifications_post_id_fkey(id, media_url, caption, owner:profiles!posts_user_id_fkey(username)),
       comment:comments!notifications_comment_id_fkey(id, body)
     `)
     .order("created_at", { ascending: false })

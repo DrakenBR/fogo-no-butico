@@ -172,6 +172,9 @@ export interface NotificationRow {
     id: string;
     media_url: string;
     caption: string | null;
+    owner: {
+      username: string;
+    } | null;
   } | null;
   comment: {
     id: string;

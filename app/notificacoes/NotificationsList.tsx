@@ -128,8 +128,9 @@ function phraseFor(kind: NotificationKind): string {
 
 function targetFor(n: NotificationRow): string {
   if (n.kind === "match" && n.actor) return `/chat`;
-  if (n.post && n.actor) {
-    return `/perfil/${n.actor.username}/posts/${n.post.id}`;
+  // O username da rota do post tem que ser o do DONO do post, não o do actor
+  if (n.post && n.post.owner) {
+    return `/perfil/${n.post.owner.username}/posts/${n.post.id}`;
   }
   if (n.actor) return `/perfil/${n.actor.username}`;
   return "/";
