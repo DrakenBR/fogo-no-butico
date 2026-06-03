@@ -1,6 +1,7 @@
 import { Sidebar } from "./Sidebar";
 import { BottomNav } from "./BottomNav";
 import { MobileMenuDrawer } from "./MobileMenuDrawer";
+import { GlobalRealtimeRefresher } from "./GlobalRealtimeRefresher";
 import { Flame } from "lucide-react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
@@ -42,6 +43,7 @@ export async function AppShell({
 
   return (
     <div style={{ display: "flex", minHeight: "100vh", width: "100%" }}>
+      {user && <GlobalRealtimeRefresher meId={user.id} />}
       <Sidebar me={me} unreadNotifs={unreadNotifs} unreadMessages={unreadMessages} unrevealedCrushers={unrevealedCrushers} />
 
       <main
