@@ -4,6 +4,7 @@ import { Flame, Search, Home, Trophy, User, PlusCircle, ShieldCheck, Bell, Messa
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { SidebarUserMenu } from "./SidebarUserMenu";
+import { useBadges } from "./BadgeProvider";
 import type { Profile } from "@/types/database";
 
 type BadgeKind = "notif" | "chat" | "crush" | null;
@@ -32,6 +33,10 @@ export function Sidebar({
   unrevealedCrushers?: number;
 }) {
   const path = usePathname();
+  const live = useBadges();
+  const notifs = live?.notifs ?? unreadNotifs;
+  const messages = live?.messages ?? unreadMessages;
+  const crushers = live?.crushers ?? unrevealedCrushers;
   return (
     <aside
       className="hidden md:flex"
@@ -63,9 +68,9 @@ export function Sidebar({
         const active = n.href === "/" ? path === "/" : path.startsWith(n.href);
         const Icon = n.icon;
         const count =
-          n.badge === "notif" ? unreadNotifs :
-          n.badge === "chat" ? unreadMessages :
-          n.badge === "crush" ? unrevealedCrushers : 0;
+          n.badge === "notif" ? notifs :
+          n.badge === "chat" ? messages :
+          n.badge === "crush" ? crushers : 0;
         const badge = !!n.badge && count > 0;
         return (
           <Link

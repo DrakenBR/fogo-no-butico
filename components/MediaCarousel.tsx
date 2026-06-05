@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { FeedVideo } from "./FeedVideo";
 import type { MediaType } from "@/types/database";
 
 interface Props {
@@ -21,15 +22,16 @@ export function MediaCarousel({ urls, types, alt = "", bg }: Props) {
   return (
     <div style={{ position: "relative", background: bg, overflow: "hidden", borderRadius: "inherit" }}>
       {type === "video" ? (
-        <video
-          src={url}
-          controls
-          playsInline
-          style={{ width: "100%", aspectRatio: "4/5", objectFit: "cover", display: "block", background: "#000" }}
-        />
+        <FeedVideo src={url} />
       ) : (
         // eslint-disable-next-line @next/next/no-img-element
-        <img src={url} alt={alt} style={{ width: "100%", aspectRatio: "4/5", objectFit: "cover", display: "block" }} />
+        <img
+          src={url}
+          alt={alt}
+          loading="lazy"
+          decoding="async"
+          style={{ width: "100%", aspectRatio: "4/5", objectFit: "cover", display: "block" }}
+        />
       )}
 
       {!single && (

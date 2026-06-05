@@ -4,7 +4,8 @@ import { Flame, ImagePlus, X, Music, Vote, Plus, Trash2, Clock, Sparkles, Chevro
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import { applyFilter, compressImage, type FilterPreset, FILTER_PRESETS } from "@/lib/utils";
+import { MediaCropper } from "@/components/MediaCropper";
+import { bakeImage, defaultCrop, type CropTransform, type FilterPreset, FILTER_PRESETS } from "@/lib/utils";
 
 type Tab = "post" | "story";
 
@@ -12,7 +13,20 @@ interface MediaSlot {
   file: File;
   previewUrl: string;
   filter: FilterPreset;
-  filteredBlob?: Blob;
+  isVideo: boolean;
+  naturalW: number;
+  naturalH: number;
+  crop: CropTransform;
+}
+
+/** Lê as dimensões naturais de uma imagem a partir do object URL. */
+function imageDims(url: string): Promise<{ w: number; h: number }> {
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.onload = () => resolve({ w: img.naturalWidth, h: img.naturalHeight });
+    img.onerror = () => resolve({ w: 1080, h: 1350 });
+    img.src = url;
+  });
 }
 
 const SCHEDULE_OPTIONS = [
@@ -48,14 +62,19 @@ export function PostarForm({ userId, initialTab }: { userId: string; initialTab:
 
   const MAX_SLOTS = tab === "post" ? 6 : 1;
 
-  const addFiles = (files: FileList | null) => {
+  const addFiles = async (files: FileList | null) => {
     if (!files) return;
     const arr = Array.from(files).slice(0, MAX_SLOTS - slots.length);
-    const next: MediaSlot[] = arr.map((file) => ({
-      file,
-      previewUrl: URL.createObjectURL(file),
-      filter: "original"
-    }));
+    const next: MediaSlot[] = await Promise.all(
+      arr.map(async (file) => {
+        const previewUrl = URL.createObjectURL(file);
+        const isVideo = file.type.startsWith("video/");
+        const { w, h } = isVideo ? { w: 1080, h: 1350 } : await imageDims(previewUrl);
+        // crop default — o MediaCropper re-mede o frame e reclampa (cover) ao montar
+        const crop = defaultCrop(w, h, 0, 0);
+        return { file, previewUrl, filter: "original" as FilterPreset, isVideo, naturalW: w, naturalH: h, crop };
+      })
+    );
     setSlots((s) => [...s, ...next]);
   };
 
@@ -65,15 +84,16 @@ export function PostarForm({ userId, initialTab }: { userId: string; initialTab:
     setCurrentSlot((c) => Math.max(0, Math.min(c, slots.length - 2)));
   };
 
-  const setFilter = async (idx: number, filter: FilterPreset) => {
-    const slot = slots[idx];
-    if (slot.file.type.startsWith("video/")) return;
-    const filtered = filter === "original" ? undefined : await applyFilter(slot.file, filter);
-    setSlots((s) => s.map((sl, i) => (i === idx ? { ...sl, filter, filteredBlob: filtered } : sl)));
+  const setFilter = (idx: number, filter: FilterPreset) => {
+    setSlots((s) => s.map((sl, i) => (i === idx ? { ...sl, filter } : sl)));
+  };
+
+  const setCrop = (idx: number, crop: CropTransform) => {
+    setSlots((s) => s.map((sl, i) => (i === idx ? { ...sl, crop } : sl)));
   };
 
   const cur = slots[currentSlot];
-  const isVideo = cur?.file.type.startsWith("video/");
+  const isVideo = cur?.isVideo ?? false;
 
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -98,14 +118,16 @@ export function PostarForm({ userId, initialTab }: { userId: string; initialTab:
       const types: ("photo" | "video")[] = [];
       for (let i = 0; i < slots.length; i++) {
         const slot = slots[i];
-        let upload: Blob = slot.filteredBlob ?? slot.file;
-        let contentType = slot.file.type;
-        let ext = slot.file.name.split(".").pop() ?? "bin";
-        if (slot.file.type.startsWith("image/") && !slot.filteredBlob) {
-          upload = await compressImage(slot.file, 1600, 0.85);
-          contentType = "image/jpeg";
-          ext = "jpg";
-        } else if (slot.filteredBlob) {
+        let upload: Blob;
+        let contentType: string;
+        let ext: string;
+        if (slot.isVideo) {
+          upload = slot.file;
+          contentType = slot.file.type;
+          ext = slot.file.name.split(".").pop() ?? "mp4";
+        } else {
+          // bake: crop (pan+zoom) + filtro, numa passada, 1080×1350 jpeg
+          upload = await bakeImage(slot.file, slot.filter, slot.crop);
           contentType = "image/jpeg";
           ext = "jpg";
         }
@@ -177,8 +199,6 @@ export function PostarForm({ userId, initialTab }: { userId: string; initialTab:
     });
   };
 
-  const filterCss = cur ? FILTER_PRESETS[cur.filter] : "none";
-
   return (
     <form onSubmit={submit} style={{ display: "flex", flexDirection: "column", gap: 14 }}>
       <div style={{ display: "flex", gap: 6, background: "var(--surface)", padding: 4, borderRadius: 12, border: "1px solid rgba(255,255,255,0.08)" }}>
@@ -208,75 +228,85 @@ export function PostarForm({ userId, initialTab }: { userId: string; initialTab:
         ))}
       </div>
 
-      <label
-        style={{
-          aspectRatio: tab === "story" ? "9/16" : "4/5",
-          background: cur ? "#000" : "var(--surface)",
-          border: "1px dashed rgba(255,255,255,0.15)",
-          borderRadius: 18,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          cursor: cur ? "default" : "pointer",
-          overflow: "hidden",
-          position: "relative"
-        }}
-        onClick={(e) => {
-          // só abre file picker se NÃO houver mídia ainda
-          if (cur) e.preventDefault();
-        }}
-      >
-        {!cur && (
+      {!cur ? (
+        <label
+          style={{
+            aspectRatio: tab === "story" ? "9/16" : "4/5",
+            background: "var(--surface)",
+            border: "1px dashed rgba(255,255,255,0.15)",
+            borderRadius: 18,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            cursor: "pointer",
+            overflow: "hidden",
+            position: "relative"
+          }}
+        >
           <div style={{ textAlign: "center", color: "var(--text-muted)" }}>
             <ImagePlus size={42} style={{ margin: "0 auto 8px" }} />
             <div style={{ fontWeight: 600 }}>Toque pra escolher</div>
             <div style={{ fontSize: 12, marginTop: 4 }}>{tab === "post" ? "foto ou vídeo (até 6)" : "foto ou vídeo"}</div>
           </div>
-        )}
-        {cur && isVideo && (
-          <video src={cur.previewUrl} controls playsInline style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-        )}
-        {cur && !isVideo && (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={cur.filteredBlob ? URL.createObjectURL(cur.filteredBlob) : cur.previewUrl} alt="preview" style={{ width: "100%", height: "100%", objectFit: "cover", filter: cur.filteredBlob ? "none" : filterCss }} />
-        )}
+          <input
+            type="file"
+            accept="image/*,video/*"
+            multiple={tab === "post"}
+            onChange={(e) => addFiles(e.target.files)}
+            style={{ display: "none" }}
+          />
+        </label>
+      ) : (
+        <div style={{ position: "relative" }}>
+          {isVideo ? (
+            <video
+              src={cur.previewUrl}
+              controls
+              playsInline
+              style={{ width: "100%", aspectRatio: tab === "story" ? "9/16" : "4/5", objectFit: "cover", borderRadius: 18, background: "#000", display: "block" }}
+            />
+          ) : (
+            <MediaCropper
+              key={currentSlot}
+              src={cur.previewUrl}
+              naturalW={cur.naturalW}
+              naturalH={cur.naturalH}
+              filter={cur.filter}
+              crop={cur.crop}
+              onChange={(c) => setCrop(currentSlot, c)}
+            />
+          )}
 
-        {/* slot nav */}
-        {slots.length > 1 && (
-          <>
-            <div style={{ position: "absolute", top: 10, left: 10, background: "rgba(0,0,0,0.6)", color: "#fff", padding: "3px 9px", borderRadius: 999, fontSize: 12, fontWeight: 700 }}>
-              {currentSlot + 1}/{slots.length}
+          {!isVideo && (
+            <div style={{ position: "absolute", top: 8, left: 8, background: "rgba(0,0,0,0.55)", color: "#fff", padding: "3px 9px", borderRadius: 999, fontSize: 11, fontWeight: 600, pointerEvents: "none" }}>
+              arrasta e dá zoom pra enquadrar
             </div>
-            {currentSlot > 0 && (
-              <button type="button" onClick={() => setCurrentSlot(currentSlot - 1)} style={slotNav("left")}><ChevronLeft size={18} /></button>
-            )}
-            {currentSlot < slots.length - 1 && (
-              <button type="button" onClick={() => setCurrentSlot(currentSlot + 1)} style={slotNav("right")}><ChevronRight size={18} /></button>
-            )}
-          </>
-        )}
+          )}
 
-        {cur && (
+          {/* slot nav */}
+          {slots.length > 1 && (
+            <>
+              <div style={{ position: "absolute", top: 8, left: "50%", transform: "translateX(-50%)", background: "rgba(0,0,0,0.6)", color: "#fff", padding: "3px 9px", borderRadius: 999, fontSize: 12, fontWeight: 700 }}>
+                {currentSlot + 1}/{slots.length}
+              </div>
+              {currentSlot > 0 && (
+                <button type="button" onClick={() => setCurrentSlot(currentSlot - 1)} style={slotNav("left")}><ChevronLeft size={18} /></button>
+              )}
+              {currentSlot < slots.length - 1 && (
+                <button type="button" onClick={() => setCurrentSlot(currentSlot + 1)} style={slotNav("right")}><ChevronRight size={18} /></button>
+              )}
+            </>
+          )}
+
           <button
             type="button"
-            onClick={(e) => {
-              e.preventDefault();
-              removeSlot(currentSlot);
-            }}
-            style={{ position: "absolute", top: 10, right: 10, background: "rgba(0,0,0,0.6)", border: "none", borderRadius: "50%", width: 32, height: 32, cursor: "pointer", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center" }}
+            onClick={() => removeSlot(currentSlot)}
+            style={{ position: "absolute", top: 8, right: 8, background: "rgba(0,0,0,0.6)", border: "none", borderRadius: "50%", width: 32, height: 32, cursor: "pointer", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 2 }}
           >
             <X size={18} />
           </button>
-        )}
-
-        <input
-          type="file"
-          accept="image/*,video/*"
-          multiple={tab === "post"}
-          onChange={(e) => addFiles(e.target.files)}
-          style={{ display: "none" }}
-        />
-      </label>
+        </div>
+      )}
 
       {/* filtros + adicionar mais */}
       {cur && (

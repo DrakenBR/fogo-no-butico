@@ -94,7 +94,7 @@ export function NotificationsList({ rows }: { rows: NotificationRow[] }) {
                 }}
               >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={n.post.media_url} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                <img src={n.post.media_url} alt="" loading="lazy" decoding="async" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
               </div>
             )}
 

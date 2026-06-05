@@ -3,6 +3,7 @@
 import { Search, Home, MessageCircle, User, PlusCircle, Bell } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useBadges } from "./BadgeProvider";
 
 interface Props {
   unreadNotifs?: number;
@@ -11,13 +12,16 @@ interface Props {
 
 export function BottomNav({ unreadNotifs = 0, unreadMessages = 0 }: Props) {
   const path = usePathname();
+  const live = useBadges();
+  const notifs = live?.notifs ?? unreadNotifs;
+  const messages = live?.messages ?? unreadMessages;
 
   const left = [
     { href: "/", icon: Home, label: "Feed", count: 0 },
-    { href: "/chat", icon: MessageCircle, label: "Chat", count: unreadMessages }
+    { href: "/chat", icon: MessageCircle, label: "Chat", count: messages }
   ];
   const right = [
-    { href: "/notificacoes", icon: Bell, label: "Notif.", count: unreadNotifs },
+    { href: "/notificacoes", icon: Bell, label: "Notif.", count: notifs },
     { href: "/perfil", icon: User, label: "Perfil", count: 0 }
   ];
 

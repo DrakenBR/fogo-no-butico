@@ -92,6 +92,71 @@ export async function applyFilter(file: File, preset: FilterPreset): Promise<Blo
   );
 }
 
+// ============================================================
+// Crop / enquadramento (estilo Instagram, proporção fixa 4:5)
+// ============================================================
+
+/** Transform do enquadramento: escala e deslocamento da imagem dentro do frame. */
+export interface CropTransform {
+  /** escala aplicada à imagem (>= coverScale) */
+  scale: number;
+  /** deslocamento em px relativo ao centro do frame, no espaço do PREVIEW */
+  x: number;
+  y: number;
+  /** largura do frame de preview onde x/y foram medidos (pra reescalar no bake) */
+  frameW: number;
+  /** altura do frame de preview */
+  frameH: number;
+  /** dimensões naturais da imagem */
+  naturalW: number;
+  naturalH: number;
+}
+
+/** Escala mínima que faz a imagem cobrir o frame (sem buraco). */
+export function coverScale(naturalW: number, naturalH: number, frameW: number, frameH: number): number {
+  return Math.max(frameW / naturalW, frameH / naturalH);
+}
+
+/** Default: cover centralizado. */
+export function defaultCrop(naturalW: number, naturalH: number, frameW: number, frameH: number): CropTransform {
+  return { scale: coverScale(naturalW, naturalH, frameW, frameH), x: 0, y: 0, frameW, frameH, naturalW, naturalH };
+}
+
+/**
+ * Bakeia a imagem final: aplica o crop (pan + zoom) e o filtro CSS numa única
+ * passada de canvas, gerando um JPEG 1080×1350 (4:5). É o passo único do upload.
+ */
+export async function bakeImage(
+  file: File,
+  filter: FilterPreset,
+  crop: CropTransform,
+  outW = 1080,
+  outH = 1350
+): Promise<Blob> {
+  const bitmap = await createImageBitmap(file);
+  const canvas = document.createElement("canvas");
+  canvas.width = outW;
+  canvas.height = outH;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return file;
+
+  if (filter !== "original") ctx.filter = FILTER_PRESETS[filter];
+
+  // razão de escala entre o frame de preview (onde o usuário enquadrou) e a saída
+  const k = outW / crop.frameW; // outW/frameW == outH/frameH (ambos 4:5)
+  // tamanho da imagem renderizada no preview
+  const drawW = crop.naturalW * crop.scale * k;
+  const drawH = crop.naturalH * crop.scale * k;
+  // centro do canvas + deslocamento do usuário (reescalado pro espaço de saída)
+  const cx = outW / 2 + crop.x * k;
+  const cy = outH / 2 + crop.y * k;
+  ctx.drawImage(bitmap, cx - drawW / 2, cy - drawH / 2, drawW, drawH);
+
+  return await new Promise<Blob>((resolve) =>
+    canvas.toBlob((b) => resolve(b ?? file), "image/jpeg", 0.85)
+  );
+}
+
 export async function compressImage(file: File, maxDim = 1600, quality = 0.82): Promise<Blob> {
   if (!file.type.startsWith("image/")) return file;
   const bitmap = await createImageBitmap(file);

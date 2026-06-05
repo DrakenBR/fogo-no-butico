@@ -56,7 +56,7 @@ export default async function SalvosPage() {
                   <video src={p.media_url} muted playsInline style={{ width: "100%", height: "100%", objectFit: "cover" }} />
                 ) : (
                   // eslint-disable-next-line @next/next/no-img-element
-                  <img src={p.media_url} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                  <img src={p.media_url} alt="" loading="lazy" decoding="async" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
                 )}
               </Link>
             ))}

@@ -1,7 +1,7 @@
 import { Sidebar } from "./Sidebar";
 import { BottomNav } from "./BottomNav";
 import { MobileMenuDrawer } from "./MobileMenuDrawer";
-import { GlobalRealtimeRefresher } from "./GlobalRealtimeRefresher";
+import { BadgeProvider } from "./BadgeProvider";
 import { Flame } from "lucide-react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
@@ -28,7 +28,7 @@ export async function AppShell({
     me = data ?? null;
     const [{ data: nCount }, { data: mCount }, { data: cCount }] = await Promise.all([
       supabase.rpc("unread_notifications_count"),
-      supabase.rpc("unread_messages_count"),
+      supabase.rpc("unread_chat_count_total"),
       supabase.rpc("unrevealed_crushers_count")
     ]);
     unreadNotifs = typeof nCount === "number" ? nCount : 0;
@@ -41,9 +41,8 @@ export async function AppShell({
   const innerMaxWidth = wide ? 1400 : 680;
   const showRight = !wide && !!right;
 
-  return (
-    <div style={{ display: "flex", minHeight: "100vh", width: "100%" }}>
-      {user && <GlobalRealtimeRefresher meId={user.id} />}
+  const inner = (
+    <>
       <Sidebar me={me} unreadNotifs={unreadNotifs} unreadMessages={unreadMessages} unrevealedCrushers={unrevealedCrushers} />
 
       <main
@@ -117,6 +116,21 @@ export async function AppShell({
       )}
 
       <BottomNav unreadNotifs={unreadNotifs} unreadMessages={unreadMessages} />
+    </>
+  );
+
+  return (
+    <div style={{ display: "flex", minHeight: "100vh", width: "100%" }}>
+      {user ? (
+        <BadgeProvider
+          meId={user.id}
+          initial={{ notifs: unreadNotifs, messages: unreadMessages, crushers: unrevealedCrushers }}
+        >
+          {inner}
+        </BadgeProvider>
+      ) : (
+        inner
+      )}
     </div>
   );
 }

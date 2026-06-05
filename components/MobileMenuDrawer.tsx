@@ -9,6 +9,7 @@ import {
   Bookmark, Pencil, LogOut, ShieldCheck, PlusCircle
 } from "lucide-react";
 import { Avatar } from "./Avatar";
+import { useBadges } from "./BadgeProvider";
 import { logout } from "@/app/login/actions";
 import type { Profile } from "@/types/database";
 
@@ -23,6 +24,10 @@ export function MobileMenuDrawer({ me, unreadNotifs = 0, unreadMessages = 0, unr
   const [open, setOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
   const path = usePathname();
+  const live = useBadges();
+  const nNotifs = live?.notifs ?? unreadNotifs;
+  const nMessages = live?.messages ?? unreadMessages;
+  const nCrushers = live?.crushers ?? unrevealedCrushers;
 
   useEffect(() => { setMounted(true); }, []);
 
@@ -51,9 +56,9 @@ export function MobileMenuDrawer({ me, unreadNotifs = 0, unreadMessages = 0, unr
   const items: { href: string; icon: typeof Home; label: string; badge?: number; tint?: string }[] = [
     { href: "/", icon: Home, label: "Feed" },
     { href: "/buscar", icon: Search, label: "Buscar" },
-    { href: "/chat", icon: MessageCircle, label: "Chat", badge: unreadMessages },
-    { href: "/notificacoes", icon: Bell, label: "Notificações", badge: unreadNotifs },
-    { href: "/curtidas", icon: Heart, label: "Curtidas", badge: unrevealedCrushers },
+    { href: "/chat", icon: MessageCircle, label: "Chat", badge: nMessages },
+    { href: "/notificacoes", icon: Bell, label: "Notificações", badge: nNotifs },
+    { href: "/curtidas", icon: Heart, label: "Curtidas", badge: nCrushers },
     { href: "/surpresa", icon: Sparkles, label: "Roleta do Butico" },
     { href: "/trivia", icon: HelpCircle, label: "Trivia do dia" },
     { href: "/ranking", icon: Trophy, label: "Ranking" },
